@@ -30,38 +30,9 @@ jobs:
       - name: Check out revision
         uses: actions/checkout@v2
 
-      - name: Set execroot hash
-        run: |
-          execroot_hash="$(
-            bazelisk info execution_root | tr -d '\n' | git hash-object --stdin
-          )"
-          echo "execroot_hash=${execroot_hash}" >> $GITHUB_ENV
-      - name: Set output base path
-        run: echo "output_base_path=$(bazelisk info output_base)" >> $GITHUB_ENV
-
-      - name: Set tree hash
-        run: echo "tree_hash=$(git rev-parse HEAD:)" >> $GITHUB_ENV
-
-      - name: Set up build cache
-        uses: actions/cache@v2
+      - name: Bazel build and test
+        uses: world-federation-of-advertisers/actions/bazel-build-test@v1.3.0
         with:
-          path: ${{ env.output_base_path }}
-          key: bazel-${{ env.execroot_hash }}-${{ env.tree_hash }}
-          restore-keys: |
-            bazel-${{ env.execroot_hash }}-
-      - name: Build
-        run: bazelisk build --keep_going //...
-
-      - name: Test
-        run: bazelisk test --keep_going //...
-
-      - name: Copy test logs
-        if: failure()
-        run: cp -Lr "$(bazelisk info bazel-testlogs)" "$HOME/bazel-testlogs"
-
-      - name: Upload test logs
-        if: failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: bazel-testlogs
-          path: ~/bazel-testlogs/
+          workspace-path: .
+          build-options: |
+            --host_platform=//build/platforms:ubuntu_18_04
