@@ -58,6 +58,25 @@ class DiracMixture(object):
   """Implements Dirac Mixture."""
 
   def __init__(self, alphas, ds):
+    """Instantiating Dirac Mixture.
+
+    Args:
+      alphas: A 1d numpy array or a list of delta coefficients.
+      ds: A 2d numpy array of Dirac Delta locations.
+    """
+    # Delayed instantiation is allowed.
+    if alphas is not None and ds is not None:
+      # Checking compatibility of shapes of alphas and ds.
+      assert len(ds.shape) == 2
+      if isinstance(alphas, list):
+        assert ds.shape[0] == len(alphas), (
+                'Inconsistent shapes: alphas=%s, ds=%s' % (alphas, ds))
+      elif isinstance(alphas, numpy.ndarray):
+        assert len(alphas.shape) == 1
+        assert len(ds.shape[1]) == alphas.shape[0]
+      else:
+        assert False, ('Dirac mixture alpha coefficients must be '
+                       'a list or an array.')
     self.alphas = alphas
     self.ds = ds
 
@@ -66,9 +85,44 @@ class DiracMixture(object):
         '%.3f * Delta(%s)' % (alpha, delta)
         for alpha, delta in zip(self.alphas, self.ds)))
 
+  @classmethod
+  def linear_basis(cls, signal, ds):
+    """Signal specific linear basis corresponding delta locations ds.
+
+    Consider a set of audiences that are recorded in the signal.
+    A Dirac Mixture can be seen as a vector in this space, which i-th
+    coordinate is reach of i-th audience.
+    For given signal location of Dirac Deltas all Dirac Mixtures form
+    a linear cone. This functions returns basis of the cone.
+    Args:
+      signal: 2d numpy array, where each row is a vector of userid
+        counts corresponding to an audience.
+      ds: 2d numpy array, where each row is a vector of Dirac Delta
+        coordinates.
+
+    Returns:
+      A matrix, where i-th row is reach of i-th delta on each audience
+      of the signal.
+    """
+    return 1 - numpy.exp(- ds.dot(signal.T))
+
+  @classmethod
+  def reach(cls, alphas, ds, signal):
+    return numpy.hstack(alphas).dot(
+        cls.linear_basis(signal, ds))
+
   def __call__(self, signal):
-    return numpy.hstack(self.alphas).dot(
-        1 - numpy.exp(- self.ds.dot(signal.T)))
+    """Applying Dirac Mixture to a collection of audiences.
+
+    Args:
+      signal: A 2d numpy array, each row is observed counts of user
+      identifiers at a particular audience.
+
+    Returns:
+      1d numpy array, where i-th number is reach of campaign
+      corresponding to i-th row of signal.
+    """
+    return self.reach(self.alphas, self.ds, signal)
 
 
 def sample_from_gaussian_mixture(centers, center_probabilities,
@@ -126,16 +180,20 @@ def fit_adaptive_dirac_mixture(signal, target,
   centers = initial_centers or numpy.vstack([numpy.ones(dim)])
   alphas = numpy.ones(len(centers)) / len(centers)
   for i in range(max_steps):
+    # Sampling new centers and adding them to the mix.
     center_probabilities = alphas / sum(alphas)
     new_centers = sample_from_gaussian_mixture(
         centers, center_probabilities,
         new_centers_at_each_step, new_centers_sigma)
     centers = numpy.vstack([centers, new_centers])
+    # Fitting coefficients of the Dirac Deltas.
     alphas = fit_alphas(centers,
                         signal,
                         target)
+    # Removing centers with zero weight.
     centers = centers[alphas > 0]
     alphas = alphas[alphas > 0]
+    # Calling user's callback for custom monitoring.
     if iteration_callback:
       iteration_callback(i, alphas, centers)
   return alphas, centers

@@ -49,7 +49,7 @@ class DiracMixtureTest(absltest.TestCase):
     adm.fit(signal, target)
     prediction = adm(signal)
     self.assertSequenceAlmostEqual(target, prediction)
-    distance = (target - prediction).dot(target - prediction) ** 0.5
+    distance = numpy.linalg.norm(target - prediction)
     self.assertLess(distance, 0.01)
 
   def test_fit_adaptive_dirac_mixture_insufficient_steps(self):
@@ -66,7 +66,7 @@ class DiracMixtureTest(absltest.TestCase):
     adm.fit(signal, target, max_steps=10)
     prediction = adm(signal)
 
-    distance = (target - prediction).dot(target - prediction) ** 0.5
+    distance = numpy.linalg.norm(target - prediction)
     self.assertGreater(distance, 0.1)
 
 
