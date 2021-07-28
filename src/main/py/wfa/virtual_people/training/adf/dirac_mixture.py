@@ -49,7 +49,7 @@ def fit_alphas(ds, signal, target):
   Returns:
     An array of coefficients for the Dirac Deltas approximating the reach.
   """
-  c = (1 - numpy.exp(- ds.dot(signal.T))).T
+  c = DiracMixture.linear_basis(signal, ds).T
   result, _ = optimize.nnls(c, target, maxiter=1000)
   return result
 
