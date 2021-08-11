@@ -8,7 +8,9 @@ py_library(
     srcs = ["dirac_mixture.py"],
     deps = [
 	"@com_google_absl_py//absl/testing:absltest",
-	requirement("numpy")],
+	requirement("numpy"),
+	requirement("scipy")
+    ],
     srcs_version = "PY3"
 )
 
