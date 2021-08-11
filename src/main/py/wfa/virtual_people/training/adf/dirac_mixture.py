@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright 2021 The Cross-Media Measurement Authors 
+# Copyright 2021 The Cross-Media Measurement Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ class DiracMixture(object):
     A Dirac Mixture can be seen as a vector in this space, which i-th
     coordinate is reach of i-th audience.
     For given signal location of Dirac Deltas all Dirac Mixtures form
-    a linear cone. This functions returns basis of the cone.
+    a linear cone. This function returns basis of the cone.
     Args:
       signal: 2d numpy array, where each row is a vector of userid
         counts corresponding to an audience.
