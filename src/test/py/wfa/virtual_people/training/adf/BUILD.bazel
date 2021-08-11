@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 py_test(
     name = "dirac_mixture_test",
     srcs = ["dirac_mixture_test.py"],
-    deps = ["//src/main/py/wfa/virtual_people/training/adf:dirac_mixture"],
-    srcs_version = "PY3",
     python_version = "PY3",
+    srcs_version = "PY3",
+    deps = ["//src/main/py/wfa/virtual_people/training/adf:dirac_mixture"],
 )

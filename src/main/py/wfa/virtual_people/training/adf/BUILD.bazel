@@ -6,11 +6,10 @@ package(default_visibility = ["//visibility:public"])
 py_library(
     name = "dirac_mixture",
     srcs = ["dirac_mixture.py"],
+    srcs_version = "PY3",
     deps = [
-	"@com_google_absl_py//absl/testing:absltest",
-	requirement("numpy"),
-	requirement("scipy")
+        "@com_google_absl_py//absl/testing:absltest",
+        requirement("numpy"),
+        requirement("scipy"),
     ],
-    srcs_version = "PY3"
 )
-
