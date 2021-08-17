@@ -24,8 +24,8 @@ package wfa_virtual_people;
 
 import "src/main/proto/wfa/virtual_people/common/field_filter.proto";
 import "src/main/proto/wfa/virtual_people/common/model.proto";
-import "src/main/proto/wfa/virtual_people/training/activity_density_function.proto";
-import "src/main/proto/wfa/virtual_people/training/comprehend.proto";
+import "wfa/virtual_people/training/activity_density_function.proto";
+import "wfa/virtual_people/training/comprehend.proto";
 
 // A list of nodes.
 message ModelNodeConfigs {

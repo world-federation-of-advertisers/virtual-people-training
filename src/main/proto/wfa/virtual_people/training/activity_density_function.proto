@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // For details on Activity Density Function, see whitepaper
-// https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45353.pdf
+// https://storage.googleapis.com/pub-tools-public-publication-data/pdf/1ab33ed15e0a7724c7b0b47361da16259fee8eef.pdf
 
 syntax = "proto3";
 
@@ -24,7 +24,7 @@ import "src/main/proto/wfa/virtual_people/common/field_filter.proto";
 // Dirac Delta function.
 message DiracDelta {
   // Location of the delta.
-  repeated double ds = 1;
+  repeated double coordinates = 1;
 }
 
 // Dirac Mixture: a linear sum of Dirac Delta functions.

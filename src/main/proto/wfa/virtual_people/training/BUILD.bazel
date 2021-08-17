@@ -6,6 +6,7 @@ package(default_visibility = ["//visibility:public"])
 proto_library(
     name = "comprehend_proto",
     srcs = ["comprehend.proto"],
+    strip_import_prefix = "/src/main/proto",
 )
 
 cc_proto_library(
@@ -16,6 +17,7 @@ cc_proto_library(
 proto_library(
     name = "activity_density_function_proto",
     srcs = ["activity_density_function.proto"],
+    strip_import_prefix = "/src/main/proto",
     deps = [
         "@virtual_people_common//src/main/proto/wfa/virtual_people/common:field_filter_proto",
     ],
@@ -29,6 +31,7 @@ cc_proto_library(
 proto_library(
     name = "model_config_proto",
     srcs = ["model_config.proto"],
+    strip_import_prefix = "/src/main/proto",
     deps = [
         ":activity_density_function_proto",
         ":comprehend_proto",
