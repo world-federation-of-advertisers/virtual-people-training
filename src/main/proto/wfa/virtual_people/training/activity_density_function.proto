@@ -1,0 +1,53 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// For details on Activity Density Function, see whitepaper
+// https://storage.googleapis.com/pub-tools-public-publication-data/pdf/1ab33ed15e0a7724c7b0b47361da16259fee8eef.pdf
+
+syntax = "proto3";
+
+package wfa_virtual_people;
+
+import "src/main/proto/wfa/virtual_people/common/field_filter.proto";
+
+// Dirac Delta function.
+message DiracDelta {
+  // Location of the delta.
+  repeated double coordinates = 1;
+}
+
+// Dirac Mixture: a linear sum of Dirac Delta functions.
+message DiracMixture {
+  // Number of @alphas should be equal to the number of @deltas.
+  // Coefficients.
+  repeated double alphas = 1;
+
+  // Delta functions.
+  repeated DiracDelta deltas = 2;
+}
+
+// Activity Density Function.
+message ActivityDensityFunction {
+  optional string name = 1;
+
+  // The filters are applied in order and the identifier is declared
+  // of type i if i-th is the first filter that passes.
+  repeated FieldFilterProto identifier_type_filters = 2;
+
+  // Names of identifier types. The number of names should be equal to
+  // the number of @identifier_type_filters.
+  repeated string idenitifer_type_names = 3;
+
+  optional DiracMixture dirac_mixture = 4;
+}

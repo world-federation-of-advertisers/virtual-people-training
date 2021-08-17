@@ -1,0 +1,199 @@
+// Copyright 2021 The Cross-Media Measurement Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// A high-level VirtualID model config defines the outline of the VID
+// model tree structure, with some specialized nodes that will be expanded
+// into more complex structures.
+// The config will be compiled into VirtualID model schema:
+// https://github.com/world-federation-of-advertisers/virtual-people-common/blob/main/src/main/proto/wfa/virtual_people/common/model.proto
+
+syntax = "proto3";
+
+package wfa_virtual_people;
+
+import "src/main/proto/wfa/virtual_people/common/field_filter.proto";
+import "src/main/proto/wfa/virtual_people/common/model.proto";
+import "wfa/virtual_people/training/activity_density_function.proto";
+import "wfa/virtual_people/training/comprehend.proto";
+
+// A list of nodes.
+message ModelNodeConfigs {
+  repeated ModelNodeConfig nodes = 1;
+}
+
+// This will be compiled into a CompiledNode.
+message ModelNodeConfig {
+  // Name of the node. It must be set and must be unique
+  // within the model tree.
+  optional string name = 1;
+
+  // Comprehension sub-message, allows data-binding to nodes.
+  optional Comprehend comprehend = 2;
+
+  // Defines ranges of virtual people that correspond to each set of
+  // attributes. Children inherit this definition.
+  optional CensusRecordsSpecification census = 3;
+
+  // Indicates how this node is selected.
+  oneof select_by {
+    // Weight to use when randomly sampling this node among all siblings.
+    double chance = 4;
+
+    // This node will be selected among siblings based on this filter.
+    FieldFilterProtoSpecification condition = 5;
+  }
+
+  oneof children {
+    // Child nodes.
+    ModelNodeConfigs branches = 6;
+
+    // Will be compiled into a subtree of population pools, using @census.
+    PopulationPoolConfig population_pool_config = 7;
+
+    // No additional children. This is only valid when in an UpdateTree.
+    StopNode stop = 8;
+  }
+
+  // Required if the child nodes(@branches, not the current node) are selected
+  // by chance.
+  optional string random_seed = 9;
+
+  message AttributesUpdaterSpecification {
+    oneof update {
+      UpdateMatrixSpecification update_matrix = 1;
+      SparseUpdateMatrixSpecification sparse_update_matrix = 2;
+      ConditionalMergeSpecification conditional_merge = 3;
+      UpdateTreeSpecification update_tree = 4;
+    }
+  }
+
+  message AttributesUpdatersSpecification {
+    repeated AttributesUpdaterSpecification updates = 1;
+  }
+
+  oneof action {
+    // Represents operations to update some fields of the input event.
+    // The updates are applied in order.
+    AttributesUpdatersSpecification updates = 10;
+
+    // Indicates how to assign multiple VIDs to a single event.
+    MultiplicitySpecification multiplicity = 11;
+  }
+}
+
+message CompiledNodeSpecification {
+  oneof source {
+    CompiledNode verbatim = 1;
+
+    // Read CompiledNode from a file.
+    string compiled_node_from_file = 2;
+
+    ModelNodeConfig model_node_config = 3;
+
+    // Read ModelNodeConfig from a file.
+    string model_node_config_from_file = 4;
+  }
+}
+
+message UpdateMatrixSpecification {
+  oneof source {
+    UpdateMatrix verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+message SparseUpdateMatrixSpecification {
+  oneof source {
+    SparseUpdateMatrix verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+message ConditionalMergeSpecification {
+  oneof source {
+    ConditionalMerge verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+message UpdateTreeSpecification {
+  optional CompiledNodeSpecification root_node = 1;
+}
+
+message MultiplicitySpecification {
+  oneof source {
+    Multiplicity verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+message FieldFilterProtoSpecification {
+  oneof source {
+    FieldFilterProto verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+// The complete populations are defined as CensusRecords.
+// Each record defines
+// - the features of the population using VirtualPerson attributes
+// - the associated population pool
+message CensusRecord {
+  optional LabelerEvent attributes = 1;
+  optional uint64 population_offset = 2;
+  optional uint64 total_population = 3;
+}
+
+message CensusRecords {
+  repeated CensusRecord records = 1;
+}
+
+message CensusRecordsSpecification {
+  oneof source {
+    CensusRecords verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+// A multipool record is a description of a pool that consists of its name and
+// a condition that determines whether a CensusRecord belongs to the pool.
+message MultipoolRecord {
+  optional string name = 1;
+  optional FieldFilterProto condition = 2;
+}
+
+message Multipool {
+  repeated MultipoolRecord records = 1;
+}
+
+message MultipoolSpecification {
+  oneof source {
+    Multipool verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+message ActivityDensityFunctionSpecification {
+  oneof source {
+    ActivityDensityFunction verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+// PopulationPoolConfig is used to build a subtree for population pools
+// under the current node.
+message PopulationPoolConfig {
+  ActivityDensityFunctionSpecification adf = 1;
+  MultipoolSpecification multipool = 2;
+}
