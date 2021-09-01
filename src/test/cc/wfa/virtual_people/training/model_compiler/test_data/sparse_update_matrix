@@ -1,0 +1,16 @@
+columns {
+  column_attrs { person_country_code: "COUNTRY_1" }
+  rows { person_country_code: "UPDATED_COUNTRY_1" }
+  rows { person_country_code: "UPDATED_COUNTRY_2" }
+  probabilities: 0.8
+  probabilities: 0.2
+}
+columns {
+  column_attrs { person_country_code: "COUNTRY_2" }
+  rows { person_country_code: "UPDATED_COUNTRY_1" }
+  rows { person_country_code: "UPDATED_COUNTRY_2" }
+  probabilities: 0.2
+  probabilities: 0.8
+}
+pass_through_non_matches: false
+random_seed: "TestSeed"
