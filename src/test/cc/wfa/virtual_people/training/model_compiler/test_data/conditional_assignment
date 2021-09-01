@@ -1,0 +1,5 @@
+condition { op: HAS name: "acting_demo.gender" }
+assignments {
+  source_field: "acting_demo.gender"
+  target_field: "corrected_demo.gender"
+}

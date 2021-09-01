@@ -1,0 +1,6 @@
+branch_node {
+  branches {
+    node { stop_node {} }
+    condition { op: TRUE }
+  }
+}
