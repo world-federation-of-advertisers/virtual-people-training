@@ -22,8 +22,8 @@ syntax = "proto3";
 
 package wfa_virtual_people;
 
-import "src/main/proto/wfa/virtual_people/common/field_filter.proto";
-import "src/main/proto/wfa/virtual_people/common/model.proto";
+import "wfa/virtual_people/common/field_filter.proto";
+import "wfa/virtual_people/common/model.proto";
 import "wfa/virtual_people/training/activity_density_function.proto";
 import "wfa/virtual_people/training/comprehend.proto";
 
@@ -75,6 +75,7 @@ message ModelNodeConfig {
       SparseUpdateMatrixSpecification sparse_update_matrix = 2;
       ConditionalMergeSpecification conditional_merge = 3;
       UpdateTreeSpecification update_tree = 4;
+      ConditionalAssignmentSpecification conditional_assignment = 5;
     }
   }
 
@@ -129,6 +130,13 @@ message ConditionalMergeSpecification {
 
 message UpdateTreeSpecification {
   optional CompiledNodeSpecification root_node = 1;
+}
+
+message ConditionalAssignmentSpecification {
+  oneof source {
+    ConditionalAssignment verbatim = 1;
+    string from_file = 2;
+  }
 }
 
 message MultiplicitySpecification {

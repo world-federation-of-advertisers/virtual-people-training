@@ -1,0 +1,10 @@
+# Bazel convenience symlinks.
+bazel-*
+
+# Bazel IntelliJ projects.
+.ijwb
+.clwb
+
+# IntelliJ projects.
+.idea/
+*.iml

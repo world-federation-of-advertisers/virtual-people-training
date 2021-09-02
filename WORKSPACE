@@ -39,9 +39,9 @@ pip_install(
 # Common-cpp
 http_archive(
     name = "wfa_common_cpp",
-    sha256 = "aac2fa570a63c974094e09a5c92585a4e992b429c658057d187f46381be3ce50",
-    strip_prefix = "common-cpp-0.1.0",
-    url = "https://github.com/world-federation-of-advertisers/common-cpp/archive/refs/tags/v0.1.0.tar.gz",
+    sha256 = "2c30e218a595483a9d0f2ca7117bc40cbc522cf513b2b8ee9db4570ffd35027f",
+    strip_prefix = "common-cpp-0.3.0",
+    url = "https://github.com/world-federation-of-advertisers/common-cpp/archive/refs/tags/v0.3.0.tar.gz",
 )
 
 load("@wfa_common_cpp//build:common_cpp_repositories.bzl", "common_cpp_repositories")
@@ -55,7 +55,7 @@ common_cpp_deps()
 # Virtual-people-common
 http_archive(
     name = "virtual_people_common",
-    sha256 = "fa100fb0acaeffc6192a0c26f0c4ee96ba269de2d004797330d71985777e4906",
-    strip_prefix = "virtual-people-common-77883e639ad22431bca5eeaffd08fbf5e320bb68",
-    url = "https://github.com/world-federation-of-advertisers/virtual-people-common/archive/77883e639ad22431bca5eeaffd08fbf5e320bb68.tar.gz",
+    sha256 = "2929e1d83594a294f86bf46dab84d312456a9bae71d5abc191f4094580a0727e",
+    strip_prefix = "virtual-people-common-1e601efd5ad61385626d8bc3739adbb3b8e68c70",
+    url = "https://github.com/world-federation-of-advertisers/virtual-people-common/archive/1e601efd5ad61385626d8bc3739adbb3b8e68c70.tar.gz",
 )

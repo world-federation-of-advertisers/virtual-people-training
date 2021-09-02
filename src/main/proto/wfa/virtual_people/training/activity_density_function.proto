@@ -19,7 +19,7 @@ syntax = "proto3";
 
 package wfa_virtual_people;
 
-import "src/main/proto/wfa/virtual_people/common/field_filter.proto";
+import "wfa/virtual_people/common/field_filter.proto";
 
 // Dirac Delta function.
 message DiracDelta {
