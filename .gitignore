@@ -1,4 +1,10 @@
-bazel-bin
-bazel-out
-bazel-testlogs
-bazel-virtual-people-training
+# Bazel convenience symlinks.
+bazel-*
+
+# Bazel IntelliJ projects.
+.ijwb
+.clwb
+
+# IntelliJ projects.
+.idea/
+*.iml
