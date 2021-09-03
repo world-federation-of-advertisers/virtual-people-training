@@ -180,14 +180,14 @@ TEST(CompileTest, BranchNodeByCondition) {
           nodes {
             name: "node2"
             condition {
-              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/country_code_1_filter"
+              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/country_code_1_filter.textproto"
             }
             stop {}
           }
           nodes {
             name: "node3"
             condition {
-              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/true_filter"
+              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/true_filter.textproto"
             }
             stop {}
           }
@@ -253,7 +253,7 @@ TEST(CompileTest, BranchNodeMixedSelectBy) {
           nodes {
             name: "node3"
             condition {
-              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/true_filter"
+              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/true_filter.textproto"
             }
             stop {}
           }
@@ -271,7 +271,7 @@ TEST(CompileTest, BranchNodeMixedSelectBy) {
           nodes {
             name: "node2"
             condition {
-              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/true_filter"
+              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/true_filter.textproto"
             }
             stop {}
           }
@@ -296,7 +296,7 @@ TEST(CompileTest, AttributesUpdaters) {
         updates {
           updates {
             update_matrix {
-              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/update_matrix"
+              from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/update_matrix.textproto"
             }
           }
         }
@@ -343,7 +343,7 @@ TEST(CompileTest, Multiplicity) {
         name: "node1"
         stop {}
         multiplicity {
-          from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/multiplicity"
+          from_file: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/multiplicity.textproto"
         }
       )pb",
       &config));

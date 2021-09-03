@@ -19,6 +19,7 @@
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
+#include "absl/strings/string_view.h"
 #include "common_cpp/macros/macros.h"
 #include "glog/logging.h"
 #include "wfa/virtual_people/common/field_filter.pb.h"
@@ -29,29 +30,51 @@
 
 namespace wfa_virtual_people {
 
+namespace {
+
 // This stores some information that will be used when building child nodes.
 struct CompilerContext {
   const CensusRecordsSpecification* census;
 };
 
 // Indicates whether the child node is selected by chance or condition.
-struct SelectBy {
+class SelectBy {
+ public:
   enum SelectBranchBy { kInvalid, kChance, kCondition };
-  SelectBranchBy by;
-  double chance;
-  const FieldFilterProtoSpecification* condition;
 
-  SelectBy() { by = kInvalid; }
+  SelectBy() { by_ = kInvalid; }
 
-  explicit SelectBy(const double input_chance) {
-    by = kChance;
-    chance = input_chance;
+  explicit SelectBy(const double chance) {
+    by_ = kChance;
+    chance_ = chance;
   }
 
-  explicit SelectBy(const FieldFilterProtoSpecification& input_condition) {
-    by = kCondition;
-    condition = &input_condition;
+  explicit SelectBy(const FieldFilterProtoSpecification& condition) {
+    by_ = kCondition;
+    condition_ = &condition;
   }
+
+  SelectBranchBy GetBy() { return by_; }
+
+  absl::StatusOr<double> GetChance() {
+    if (by_ == kChance) {
+      return chance_;
+    }
+    return absl::InternalError("Calling GetChance when chance is not set.");
+  }
+
+  absl::StatusOr<const FieldFilterProtoSpecification*> GetCondition() {
+    if (by_ == kCondition) {
+      return condition_;
+    }
+    return absl::InternalError(
+        "Calling GetCondition when condition is not set.");
+  }
+
+ private:
+  SelectBranchBy by_;
+  double chance_;
+  const FieldFilterProtoSpecification* condition_;
 };
 
 absl::StatusOr<SelectBy> Compile(const ModelNodeConfig& config,
@@ -60,7 +83,7 @@ absl::StatusOr<SelectBy> Compile(const ModelNodeConfig& config,
 // Create a BranchNode, with each branch compiled recursively from a
 // ModelNodeConfigs.
 absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
-                                             const std::string& random_seed,
+                                             absl::string_view random_seed,
                                              CompilerContext& context) {
   BranchNode branch_node;
   bool has_chance = false;
@@ -69,7 +92,7 @@ absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
     BranchNode::Branch* branch = branch_node.add_branches();
     ASSIGN_OR_RETURN(SelectBy select_by,
                      Compile(config, context, *branch->mutable_node()));
-    switch (select_by.by) {
+    switch (select_by.GetBy()) {
       case SelectBy::kChance: {
         if (has_condition) {
           return absl::InvalidArgumentError(absl::StrCat(
@@ -77,7 +100,8 @@ absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
               config.DebugString()));
         }
         has_chance = true;
-        branch->set_chance(select_by.chance);
+        ASSIGN_OR_RETURN(double chance, select_by.GetChance());
+        branch->set_chance(chance);
         break;
       }
       case SelectBy::kCondition: {
@@ -87,12 +111,14 @@ absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
               config.DebugString()));
         }
         has_condition = true;
-        if (!select_by.condition) {
+        ASSIGN_OR_RETURN(const FieldFilterProtoSpecification* condition,
+                         select_by.GetCondition());
+        if (!condition) {
           return absl::InternalError(
               "NULL condition when selecting by conditon.");
         }
         ASSIGN_OR_RETURN(*branch->mutable_condition(),
-                         CompileFieldFilterProto(*select_by.condition));
+                         CompileFieldFilterProto(*condition));
         break;
       }
       default:
@@ -105,7 +131,7 @@ absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
       return absl::InvalidArgumentError(
           "random_seed must be set when branches are selected by chances.");
     }
-    branch_node.set_random_seed(random_seed);
+    branch_node.set_random_seed(std::string(random_seed));
   }
   return branch_node;
 }
@@ -118,7 +144,7 @@ absl::StatusOr<BranchNode> CompilePopulationPool() {
 }
 
 // Create a BranchNode with single branch, which is a stop node.
-BranchNode CompileStop(const std::string& name) {
+BranchNode CompileStop(absl::string_view name) {
   BranchNode stop;
   BranchNode::Branch* branch = stop.add_branches();
   *branch->mutable_condition() = CreateTrueFilter();
@@ -179,6 +205,8 @@ absl::StatusOr<SelectBy> Compile(const ModelNodeConfig& config,
       return SelectBy();
   }
 }
+
+}  // namespace
 
 absl::StatusOr<CompiledNode> Compile(const ModelNodeConfig& config) {
   CompiledNode node;

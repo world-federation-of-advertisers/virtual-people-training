@@ -32,12 +32,15 @@
 
 namespace wfa_virtual_people {
 
-using AttributesUpdater = BranchNode::AttributesUpdater;
 using AttributesUpdaters = BranchNode::AttributesUpdaters;
 using AttributesUpdaterSpecification =
     ModelNodeConfig::AttributesUpdaterSpecification;
 using AttributesUpdatersSpecification =
     ModelNodeConfig::AttributesUpdatersSpecification;
+
+namespace {
+
+using AttributesUpdater = BranchNode::AttributesUpdater;
 
 // Read textproto from file @path to @message.
 absl::Status ReadTextProtoFile(absl::string_view path,
@@ -69,12 +72,6 @@ absl::StatusOr<ProtoType> CompileFromSpecification(
   }
   return absl::InvalidArgumentError(absl::StrCat(
       "Neither verbatim nor from_file is set: ", config.DebugString()));
-}
-
-absl::StatusOr<FieldFilterProto> CompileFieldFilterProto(
-    const FieldFilterProtoSpecification& config) {
-  return CompileFromSpecification<FieldFilterProto,
-                                  FieldFilterProtoSpecification>(config);
 }
 
 absl::StatusOr<UpdateMatrix> CompileUpdateMatrix(
@@ -176,6 +173,14 @@ absl::StatusOr<AttributesUpdater> CompileAttributesUpdater(
           absl::StrCat("update is not set: ", config.DebugString()));
   }
   return updater;
+}
+
+}  // namespace
+
+absl::StatusOr<FieldFilterProto> CompileFieldFilterProto(
+    const FieldFilterProtoSpecification& config) {
+  return CompileFromSpecification<FieldFilterProto,
+                                  FieldFilterProtoSpecification>(config);
 }
 
 absl::StatusOr<AttributesUpdaters> CompileAttributesUpdaters(

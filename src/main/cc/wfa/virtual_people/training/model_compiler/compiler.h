@@ -21,7 +21,7 @@
 
 namespace wfa_virtual_people {
 
-// Covnerts @config to CompiledNode recursively.
+// Converts @config to CompiledNode recursively.
 //
 // In the returned node, any child node is referenced by CompiledNode. No index
 // is set in any node.

@@ -58,7 +58,7 @@ TEST(CompileFieldFilterProtoTest, FromFile) {
   FieldFilterProtoSpecification config;
   config.set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "country_code_1_filter");
+      "country_code_1_filter.textproto");
   FieldFilterProto expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -124,7 +124,7 @@ TEST(CompileAttributesUpdatersTest, UpdateMatrixFromFile) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_update_matrix()->set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "update_matrix");
+      "update_matrix.textproto");
   BranchNode::AttributesUpdaters expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -216,7 +216,7 @@ TEST(CompileAttributesUpdatersTest, SparseUpdateMatrixFromFile) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_sparse_update_matrix()->set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "sparse_update_matrix");
+      "sparse_update_matrix.textproto");
   BranchNode::AttributesUpdaters expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -316,7 +316,7 @@ TEST(CompileAttributesUpdatersTest, ConditionalMergeFromFile) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_conditional_merge()->set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "conditional_merge");
+      "conditional_merge.textproto");
   BranchNode::AttributesUpdaters expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -393,7 +393,7 @@ TEST(CompileAttributesUpdatersTest, ConditionalAssignmentFromFile) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_conditional_assignment()->set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "conditional_assignment");
+      "conditional_assignment.textproto");
   BranchNode::AttributesUpdaters expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -467,7 +467,7 @@ TEST(CompileAttributesUpdatersTest, UpdateTreeCompiledNodeFromFile) {
       ->mutable_root_node()
       ->set_compiled_node_from_file(
           "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-          "stop_node_tree");
+          "stop_node_tree.textproto");
   BranchNode::AttributesUpdaters expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -537,7 +537,7 @@ TEST(CompileAttributesUpdatersTest, UpdateTreeModelNodeConfigFromFile) {
       ->mutable_root_node()
       ->set_model_node_config_from_file(
           "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-          "stop_node_tree_config");
+          "stop_node_tree_config.textproto");
   BranchNode::AttributesUpdaters expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -574,10 +574,10 @@ TEST(CompileAttributesUpdatersTest, MultipleUpdates) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_update_matrix()->set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "update_matrix");
+      "update_matrix.textproto");
   config.add_updates()->mutable_sparse_update_matrix()->set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "sparse_update_matrix");
+      "sparse_update_matrix.textproto");
   BranchNode::AttributesUpdaters expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
@@ -641,7 +641,7 @@ TEST(CompileMultiplicityTest, FromFile) {
   MultiplicitySpecification config;
   config.set_from_file(
       "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
-      "multiplicity");
+      "multiplicity.textproto");
   Multiplicity expected;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
       R"pb(
