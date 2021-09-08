@@ -77,8 +77,10 @@ class SelectBy {
   const FieldFilterProtoSpecification* condition_;
 };
 
-absl::StatusOr<SelectBy> Compile(const ModelNodeConfig& config,
-                                 CompilerContext& context, CompiledNode& node);
+// This is forward-declared because of mutual recursion.
+absl::StatusOr<SelectBy> CompileNode(const ModelNodeConfig& config,
+                                     CompilerContext& context,
+                                     CompiledNode& node);
 
 // Create a BranchNode, with each branch compiled recursively from a
 // ModelNodeConfigs.
@@ -91,7 +93,7 @@ absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
   for (const ModelNodeConfig& config : branches.nodes()) {
     BranchNode::Branch* branch = branch_node.add_branches();
     ASSIGN_OR_RETURN(SelectBy select_by,
-                     Compile(config, context, *branch->mutable_node()));
+                     CompileNode(config, context, *branch->mutable_node()));
     switch (select_by.GetBy()) {
       case SelectBy::kChance: {
         if (has_condition) {
@@ -158,8 +160,9 @@ BranchNode CompileStop(absl::string_view name) {
 // The return value indicates the chance/condition that the @node is selected
 // from its parent node.
 // Returns error status when the children of @config is not set.
-absl::StatusOr<SelectBy> Compile(const ModelNodeConfig& config,
-                                 CompilerContext& context, CompiledNode& node) {
+absl::StatusOr<SelectBy> CompileNode(const ModelNodeConfig& config,
+                                     CompilerContext& context,
+                                     CompiledNode& node) {
   node.set_name(config.name());
 
   if (config.has_census()) {
@@ -208,10 +211,10 @@ absl::StatusOr<SelectBy> Compile(const ModelNodeConfig& config,
 
 }  // namespace
 
-absl::StatusOr<CompiledNode> Compile(const ModelNodeConfig& config) {
+absl::StatusOr<CompiledNode> CompileModel(const ModelNodeConfig& config) {
   CompiledNode node;
   CompilerContext context;
-  RETURN_IF_ERROR(Compile(config, context, node).status());
+  RETURN_IF_ERROR(CompileNode(config, context, node).status());
   return node;
 }
 

@@ -26,7 +26,7 @@ namespace wfa_virtual_people {
 absl::StatusOr<FieldFilterProto> CompileFieldFilterProto(
     const FieldFilterProtoSpecification& config);
 
-// Create a AttributesUpdaters from AttributesUpdatersSpecification.
+// Create an AttributesUpdaters from AttributesUpdatersSpecification.
 absl::StatusOr<BranchNode::AttributesUpdaters> CompileAttributesUpdaters(
     const ModelNodeConfig::AttributesUpdatersSpecification& config);
 

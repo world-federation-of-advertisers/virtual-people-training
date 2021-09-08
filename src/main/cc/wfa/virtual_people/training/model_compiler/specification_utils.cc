@@ -32,15 +32,14 @@
 
 namespace wfa_virtual_people {
 
+namespace {
+
+using AttributesUpdater = BranchNode::AttributesUpdater;
 using AttributesUpdaters = BranchNode::AttributesUpdaters;
 using AttributesUpdaterSpecification =
     ModelNodeConfig::AttributesUpdaterSpecification;
 using AttributesUpdatersSpecification =
     ModelNodeConfig::AttributesUpdatersSpecification;
-
-namespace {
-
-using AttributesUpdater = BranchNode::AttributesUpdater;
 
 // Read textproto from file @path to @message.
 absl::Status ReadTextProtoFile(absl::string_view path,
@@ -110,12 +109,12 @@ absl::StatusOr<CompiledNode> CompileCompiledNode(
       return node;
     }
     case CompiledNodeSpecification::kModelNodeConfig:
-      return Compile(config.model_node_config());
+      return CompileModel(config.model_node_config());
     case CompiledNodeSpecification::kModelNodeConfigFromFile: {
       ModelNodeConfig node_config;
       RETURN_IF_ERROR(
           ReadTextProtoFile(config.model_node_config_from_file(), node_config));
-      return Compile(node_config);
+      return CompileModel(node_config);
     }
     default:
       return absl::InvalidArgumentError(absl::StrCat(

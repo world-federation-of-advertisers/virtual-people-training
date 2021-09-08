@@ -72,7 +72,8 @@ TEST(CompileFieldFilterProtoTest, FromFile) {
 TEST(CompileFieldFilterProtoTest, NotSet) {
   FieldFilterProtoSpecification config;
   EXPECT_THAT(CompileFieldFilterProto(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
 }
 
 TEST(CompileAttributesUpdatersTest, UpdateMatrixFromVerbatim) {
@@ -152,7 +153,8 @@ TEST(CompileFieldFilterProtoTest, UpdateMatrixNotSet) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_update_matrix();
   EXPECT_THAT(CompileAttributesUpdaters(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
 }
 
 TEST(CompileAttributesUpdatersTest, SparseUpdateMatrixFromVerbatim) {
@@ -250,7 +252,8 @@ TEST(CompileFieldFilterProtoTest, SparseUpdateMatrixNotSet) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_sparse_update_matrix();
   EXPECT_THAT(CompileAttributesUpdaters(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
 }
 
 TEST(CompileAttributesUpdatersTest, ConditionalMergeFromVerbatim) {
@@ -351,7 +354,8 @@ TEST(CompileFieldFilterProtoTest, ConditionalMergeNotSet) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_conditional_merge();
   EXPECT_THAT(CompileAttributesUpdaters(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
 }
 
 TEST(CompileAttributesUpdatersTest, ConditionalAssignmentFromVerbatim) {
@@ -416,7 +420,8 @@ TEST(CompileFieldFilterProtoTest, ConditionalAssignmentNotSet) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_conditional_assignment();
   EXPECT_THAT(CompileAttributesUpdaters(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
 }
 
 TEST(CompileAttributesUpdatersTest, UpdateTreeFromVerbatim) {
@@ -567,7 +572,10 @@ TEST(CompileFieldFilterProtoTest, UpdateTreeNotSet) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   config.add_updates()->mutable_update_tree()->mutable_root_node();
   EXPECT_THAT(CompileAttributesUpdaters(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "None of verbatim, compiled_node_from_file, "
+                       "model_node_config, or model_node_config_from_file is "
+                       "set"));
 }
 
 TEST(CompileAttributesUpdatersTest, MultipleUpdates) {
@@ -654,7 +662,8 @@ TEST(CompileMultiplicityTest, FromFile) {
 TEST(CompileMultiplicityTest, NotSet) {
   MultiplicitySpecification config;
   EXPECT_THAT(CompileMultiplicity(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
 }
 
 }  // namespace

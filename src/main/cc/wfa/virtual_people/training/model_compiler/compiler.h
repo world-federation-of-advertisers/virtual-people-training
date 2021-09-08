@@ -24,8 +24,10 @@ namespace wfa_virtual_people {
 // Converts @config to CompiledNode recursively.
 //
 // In the returned node, any child node is referenced by CompiledNode. No index
-// is set in any node.
-absl::StatusOr<CompiledNode> Compile(const ModelNodeConfig& config);
+// is set in any node. (In a CompiledNode, any child node can be referenced by
+// a CompiledNode sub-message, or an index which refers to another
+// CompiledNode.)
+absl::StatusOr<CompiledNode> CompileModel(const ModelNodeConfig& config);
 
 }  // namespace wfa_virtual_people
 

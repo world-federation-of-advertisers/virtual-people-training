@@ -39,8 +39,9 @@ TEST(CompileTest, ChildrenNotSet) {
         name: "node1"
       )pb",
       &config));
-  EXPECT_THAT(Compile(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Children of the config is not set"));
 }
 
 TEST(CompileTest, StopNode) {
@@ -66,7 +67,7 @@ TEST(CompileTest, StopNode) {
         }
       )pb",
       &expected));
-  EXPECT_THAT(Compile(config), IsOkAndHolds(EqualsProto(expected)));
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
 TEST(CompileTest, BranchNoSelectBy) {
@@ -82,8 +83,9 @@ TEST(CompileTest, BranchNoSelectBy) {
         }
       )pb",
       &config));
-  EXPECT_THAT(Compile(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "select_by must be set for branch node"));
 }
 
 TEST(CompileTest, BranchNodeByChance) {
@@ -145,7 +147,7 @@ TEST(CompileTest, BranchNodeByChance) {
         }
       )pb",
       &expected));
-  EXPECT_THAT(Compile(config), IsOkAndHolds(EqualsProto(expected)));
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
 TEST(CompileTest, BranchNodeByChanceNoRandomSeed) {
@@ -167,8 +169,10 @@ TEST(CompileTest, BranchNodeByChanceNoRandomSeed) {
         }
       )pb",
       &config));
-  EXPECT_THAT(Compile(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "random_seed must be set when branches are selected by "
+                       "chances."));
 }
 
 TEST(CompileTest, BranchNodeByCondition) {
@@ -236,7 +240,7 @@ TEST(CompileTest, BranchNodeByCondition) {
         }
       )pb",
       &expected));
-  EXPECT_THAT(Compile(config), IsOkAndHolds(EqualsProto(expected)));
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
 TEST(CompileTest, BranchNodeMixedSelectBy) {
@@ -260,8 +264,9 @@ TEST(CompileTest, BranchNodeMixedSelectBy) {
         }
       )pb",
       &config_1));
-  EXPECT_THAT(Compile(config_1).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+  EXPECT_THAT(CompileModel(config_1).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Both chance and condition are set for branch nodes"));
 
   ModelNodeConfig config_2;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
@@ -283,8 +288,9 @@ TEST(CompileTest, BranchNodeMixedSelectBy) {
         }
       )pb",
       &config_2));
-  EXPECT_THAT(Compile(config_2).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument, ""));
+  EXPECT_THAT(CompileModel(config_2).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Both chance and condition are set for branch nodes"));
 }
 
 TEST(CompileTest, AttributesUpdaters) {
@@ -333,7 +339,7 @@ TEST(CompileTest, AttributesUpdaters) {
         }
       )pb",
       &expected));
-  EXPECT_THAT(Compile(config), IsOkAndHolds(EqualsProto(expected)));
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
 TEST(CompileTest, Multiplicity) {
@@ -366,7 +372,7 @@ TEST(CompileTest, Multiplicity) {
         }
       )pb",
       &expected));
-  EXPECT_THAT(Compile(config), IsOkAndHolds(EqualsProto(expected)));
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
 }  // namespace
