@@ -85,7 +85,7 @@ TEST(CompileTest, BranchNoSelectBy) {
       &config));
   EXPECT_THAT(CompileModel(config).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
-                       "select_by must be set for branch node"));
+                       "select_by is not set for a branch"));
 }
 
 TEST(CompileTest, BranchNodeByChance) {
@@ -262,11 +262,12 @@ TEST(CompileTest, BranchNodeMixedSelectBy) {
             stop {}
           }
         }
+        random_seed: "seed1"
       )pb",
       &config_1));
   EXPECT_THAT(CompileModel(config_1).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
-                       "Both chance and condition are set for branch nodes"));
+                       "Not all branches has chance set"));
 
   ModelNodeConfig config_2;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
@@ -290,7 +291,7 @@ TEST(CompileTest, BranchNodeMixedSelectBy) {
       &config_2));
   EXPECT_THAT(CompileModel(config_2).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
-                       "Both chance and condition are set for branch nodes"));
+                       "Not all branches has condition set"));
 }
 
 TEST(CompileTest, AttributesUpdaters) {

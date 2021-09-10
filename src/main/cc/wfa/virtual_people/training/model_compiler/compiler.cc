@@ -54,16 +54,16 @@ class SelectBy {
     condition_ = &condition;
   }
 
-  SelectBranchBy GetBy() { return by_; }
+  SelectBranchBy GetBy() const { return by_; }
 
-  absl::StatusOr<double> GetChance() {
+  absl::StatusOr<double> GetChance() const {
     if (by_ == kChance) {
       return chance_;
     }
     return absl::InternalError("Calling GetChance when chance is not set.");
   }
 
-  absl::StatusOr<const FieldFilterProtoSpecification*> GetCondition() {
+  absl::StatusOr<const FieldFilterProtoSpecification*> GetCondition() const {
     if (by_ == kCondition) {
       return condition_;
     }
@@ -83,59 +83,68 @@ absl::StatusOr<SelectBy> CompileNode(const ModelNodeConfig& config,
                                      CompiledNode& node);
 
 // Create a BranchNode, with each branch compiled recursively from a
-// ModelNodeConfigs.
-absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
-                                             absl::string_view random_seed,
-                                             CompilerContext& context) {
+// ModelNodeConfigs. All branches must have chance set.
+absl::StatusOr<BranchNode> CompileChanceBranchNode(
+    const ModelNodeConfigs branches, absl::string_view random_seed,
+    CompilerContext& context) {
   BranchNode branch_node;
-  bool has_chance = false;
-  bool has_condition = false;
+  if (random_seed.empty()) {
+    return absl::InvalidArgumentError(
+        "random_seed must be set when branches are selected by chances.");
+  }
+  branch_node.set_random_seed(std::string(random_seed));
   for (const ModelNodeConfig& config : branches.nodes()) {
     BranchNode::Branch* branch = branch_node.add_branches();
     ASSIGN_OR_RETURN(SelectBy select_by,
                      CompileNode(config, context, *branch->mutable_node()));
-    switch (select_by.GetBy()) {
-      case SelectBy::kChance: {
-        if (has_condition) {
-          return absl::InvalidArgumentError(absl::StrCat(
-              "Both chance and condition are set for branch nodes: ",
-              config.DebugString()));
-        }
-        has_chance = true;
-        ASSIGN_OR_RETURN(double chance, select_by.GetChance());
-        branch->set_chance(chance);
-        break;
-      }
-      case SelectBy::kCondition: {
-        if (has_chance) {
-          return absl::InvalidArgumentError(absl::StrCat(
-              "Both chance and condition are set for branch nodes: ",
-              config.DebugString()));
-        }
-        has_condition = true;
-        ASSIGN_OR_RETURN(const FieldFilterProtoSpecification* condition,
-                         select_by.GetCondition());
-        if (!condition) {
-          return absl::InternalError(
-              "NULL condition when selecting by conditon.");
-        }
-        ASSIGN_OR_RETURN(*branch->mutable_condition(),
-                         CompileFieldFilterProto(*condition));
-        break;
-      }
-      default:
-        return absl::InvalidArgumentError(absl::StrCat(
-            "select_by must be set for branch node: ", config.DebugString()));
+    if (select_by.GetBy() != SelectBy::kChance) {
+      return absl::InvalidArgumentError(absl::StrCat(
+          "Not all branches has chance set: ", branches.DebugString()));
     }
-  }
-  if (has_chance) {
-    if (random_seed.empty()) {
-      return absl::InvalidArgumentError(
-          "random_seed must be set when branches are selected by chances.");
-    }
-    branch_node.set_random_seed(std::string(random_seed));
+    ASSIGN_OR_RETURN(double chance, select_by.GetChance());
+    branch->set_chance(chance);
   }
   return branch_node;
+}
+
+// Create a BranchNode, with each branch compiled recursively from a
+// ModelNodeConfigs. All branches must have condition set.
+absl::StatusOr<BranchNode> CompileConditionBranchNode(
+    const ModelNodeConfigs branches, CompilerContext& context) {
+  BranchNode branch_node;
+  for (const ModelNodeConfig& config : branches.nodes()) {
+    BranchNode::Branch* branch = branch_node.add_branches();
+    ASSIGN_OR_RETURN(SelectBy select_by,
+                     CompileNode(config, context, *branch->mutable_node()));
+    if (select_by.GetBy() != SelectBy::kCondition) {
+      return absl::InvalidArgumentError(absl::StrCat(
+          "Not all branches has condition set: ", branches.DebugString()));
+    }
+    ASSIGN_OR_RETURN(const FieldFilterProtoSpecification* condition,
+                     select_by.GetCondition());
+    if (!condition) {
+      return absl::InternalError("NULL condition when selecting by conditon.");
+    }
+    ASSIGN_OR_RETURN(*branch->mutable_condition(),
+                     CompileFieldFilterProto(*condition));
+  }
+  return branch_node;
+}
+
+// Create a BranchNode, with each branch compiled recursively from a
+// ModelNodeConfigs.
+absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
+                                             absl::string_view random_seed,
+                                             CompilerContext& context) {
+  switch (branches.nodes(0).select_by_case()) {
+    case ModelNodeConfig::kChance:
+      return CompileChanceBranchNode(branches, random_seed, context);
+    case ModelNodeConfig::kCondition:
+      return CompileConditionBranchNode(branches, context);
+    default:
+      return absl::InvalidArgumentError(absl::StrCat(
+          "select_by is not set for a branch: ", branches.DebugString()));
+  }
 }
 
 // TODO(@tcsnfkx): Implement compiling population pool.
