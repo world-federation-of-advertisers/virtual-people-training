@@ -123,7 +123,7 @@ absl::StatusOr<BranchNode> CompileConditionBranchNode(
     ASSIGN_OR_RETURN(const FieldFilterProtoSpecification* condition,
                      select_by.GetCondition());
     if (!condition) {
-      return absl::InternalError("NULL condition when selecting by conditon.");
+      return absl::InternalError("NULL condition when selecting by condition.");
     }
     ASSIGN_OR_RETURN(*branch->mutable_condition(),
                      CompileFieldFilterProto(*condition));
@@ -136,6 +136,9 @@ absl::StatusOr<BranchNode> CompileConditionBranchNode(
 absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
                                              absl::string_view random_seed,
                                              CompilerContext& context) {
+  if (branches.nodes_size() == 0) {
+    return absl::InvalidArgumentError("No node in branches.");
+  }
   switch (branches.nodes(0).select_by_case()) {
     case ModelNodeConfig::kChance:
       return CompileChanceBranchNode(branches, random_seed, context);

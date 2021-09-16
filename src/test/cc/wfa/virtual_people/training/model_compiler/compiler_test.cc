@@ -70,6 +70,19 @@ TEST(CompileTest, StopNode) {
   EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
+TEST(CompileTest, BranchNoNode) {
+  ModelNodeConfig config;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        name: "node1"
+        branches {}
+      )pb",
+      &config));
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "No node in branches."));
+}
+
 TEST(CompileTest, BranchNoSelectBy) {
   ModelNodeConfig config;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
