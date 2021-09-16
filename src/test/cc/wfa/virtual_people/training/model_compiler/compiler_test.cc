@@ -78,9 +78,9 @@ TEST(CompileTest, BranchNoNode) {
         branches {}
       )pb",
       &config));
-  EXPECT_THAT(CompileModel(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       "No node in branches."));
+  EXPECT_THAT(
+      CompileModel(config).status(),
+      StatusIs(absl::StatusCode::kInvalidArgument, "No node in branches."));
 }
 
 TEST(CompileTest, BranchNoSelectBy) {
