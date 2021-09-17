@@ -1,0 +1,17 @@
+nodes {
+  condition {
+    op: EQUAL
+    name: "person_country_code"
+    value: "COUNTRY_1"
+  }
+  update { person_country_code: "UPDATED_COUNTRY_1" }
+}
+nodes {
+  condition {
+    op: EQUAL
+    name: "person_country_code"
+    value: "COUNTRY_2"
+  }
+  update { person_country_code: "UPDATED_COUNTRY_2" }
+}
+pass_through_non_matches: false

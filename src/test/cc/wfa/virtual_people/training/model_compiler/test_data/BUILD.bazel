@@ -1,0 +1,11 @@
+exports_files([
+    "conditional_assignment.textproto",
+    "conditional_merge.textproto",
+    "country_code_1_filter.textproto",
+    "multiplicity.textproto",
+    "sparse_update_matrix.textproto",
+    "stop_node_tree_config.textproto",
+    "stop_node_tree.textproto",
+    "true_filter.textproto",
+    "update_matrix.textproto",
+])
