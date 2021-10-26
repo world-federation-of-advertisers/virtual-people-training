@@ -198,4 +198,21 @@ absl::StatusOr<Multiplicity> CompileMultiplicity(
       config);
 }
 
+absl::StatusOr<ActivityDensityFunction> CompileActivityDensityFunction(
+    const ActivityDensityFunctionSpecification& config) {
+  return CompileFromSpecification<ActivityDensityFunction,
+                                  ActivityDensityFunctionSpecification>(config);
+}
+
+absl::StatusOr<Multipool> CompileMultipool(
+    const MultipoolSpecification& config) {
+  return CompileFromSpecification<Multipool, MultipoolSpecification>(config);
+}
+
+absl::StatusOr<CensusRecords> CompileCensusRecords(
+    const CensusRecordsSpecification& config) {
+  return CompileFromSpecification<CensusRecords, CensusRecordsSpecification>(
+      config);
+}
+
 }  // namespace wfa_virtual_people

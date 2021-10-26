@@ -1,0 +1,7 @@
+records {
+  attributes {
+    person_country_code: "COUNTRY_CODE_1"
+  }
+  population_offset: 0
+  total_population: 100
+}

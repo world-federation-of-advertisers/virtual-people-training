@@ -1,8 +1,11 @@
 exports_files([
+    "activity_density_function.textproto",
+    "census_records.textproto",
     "conditional_assignment.textproto",
     "conditional_merge.textproto",
     "country_code_1_filter.textproto",
     "multiplicity.textproto",
+    "multipool.textproto",
     "sparse_update_matrix.textproto",
     "stop_node_tree_config.textproto",
     "stop_node_tree.textproto",

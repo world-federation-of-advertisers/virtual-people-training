@@ -34,6 +34,18 @@ absl::StatusOr<BranchNode::AttributesUpdaters> CompileAttributesUpdaters(
 absl::StatusOr<Multiplicity> CompileMultiplicity(
     const MultiplicitySpecification& config);
 
+// Create a ActivityDensityFunction from ActivityDensityFunctionSpecification.
+absl::StatusOr<ActivityDensityFunction> CompileActivityDensityFunction(
+    const ActivityDensityFunctionSpecification& config);
+
+// Create a Multipool from MultipoolSpecification.
+absl::StatusOr<Multipool> CompileMultipool(
+    const MultipoolSpecification& config);
+
+// Create a CensusRecords from CensusRecordsSpecification.
+absl::StatusOr<CensusRecords> CompileCensusRecords(
+    const CensusRecordsSpecification& config);
+
 }  // namespace wfa_virtual_people
 
 #endif  // SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_SPECIFICATION_UTILS_H_
