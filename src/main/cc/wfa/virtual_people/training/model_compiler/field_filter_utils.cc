@@ -58,6 +58,8 @@ void RemoveEqualFilter(FieldFilterProto& filter, absl::string_view name) {
     }
 
     // Remove any sub_filters which is TRUE filter.
+    // Instructions about how to use erase-remove:
+    // https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
     filter.mutable_sub_filters()->erase(
         std::remove_if(filter.mutable_sub_filters()->begin(),
                        filter.mutable_sub_filters()->end(),

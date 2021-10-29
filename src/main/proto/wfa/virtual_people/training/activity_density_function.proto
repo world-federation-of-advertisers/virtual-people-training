@@ -47,7 +47,7 @@ message ActivityDensityFunction {
 
   // Names of identifier types. The number of names should be equal to
   // the number of @identifier_type_filters.
-  repeated string idenitifer_type_names = 3;
+  repeated string identifier_type_names = 3;
 
   optional DiracMixture dirac_mixture = 4;
 }

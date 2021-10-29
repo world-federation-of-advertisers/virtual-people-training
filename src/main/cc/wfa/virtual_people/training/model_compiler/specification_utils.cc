@@ -22,6 +22,7 @@
 #include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
 #include "common_cpp/macros/macros.h"
+#include "common_cpp/protobuf_util/textproto_io.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "google/protobuf/message.h"
 #include "google/protobuf/text_format.h"
@@ -34,29 +35,13 @@ namespace wfa_virtual_people {
 
 namespace {
 
+using ::wfa::ReadTextProtoFile;
 using AttributesUpdater = BranchNode::AttributesUpdater;
 using AttributesUpdaters = BranchNode::AttributesUpdaters;
 using AttributesUpdaterSpecification =
     ModelNodeConfig::AttributesUpdaterSpecification;
 using AttributesUpdatersSpecification =
     ModelNodeConfig::AttributesUpdatersSpecification;
-
-// Read textproto from file @path to @message.
-absl::Status ReadTextProtoFile(absl::string_view path,
-                               google::protobuf::Message& message) {
-  int fd = open(path.data(), O_RDONLY);
-  if (fd <= 0) {
-    return absl::InvalidArgumentError(
-        absl::StrCat("Unable to open file: ", path));
-  }
-  google::protobuf::io::FileInputStream file_input(fd);
-  file_input.SetCloseOnDelete(true);
-  if (!google::protobuf::TextFormat::Parse(&file_input, &message)) {
-    return absl::InvalidArgumentError(
-        absl::StrCat("Unable to parse textproto file: ", path));
-  }
-  return absl::OkStatus();
-}
 
 template <typename ProtoType, typename ProtoSpecificationType>
 absl::StatusOr<ProtoType> CompileFromSpecification(

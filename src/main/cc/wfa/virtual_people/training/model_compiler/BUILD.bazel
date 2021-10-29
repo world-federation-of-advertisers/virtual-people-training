@@ -22,7 +22,6 @@ cc_library(
         ":constants",
         ":field_filter_utils",
         "//src/main/proto/wfa/virtual_people/training:model_config_cc_proto",
-        "@com_github_glog_glog//:glog",
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/status",
@@ -33,6 +32,7 @@ cc_library(
         "@virtual_people_common//src/main/proto/wfa/virtual_people/common:field_filter_cc_proto",
         "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto",
         "@wfa_common_cpp//src/main/cc/common_cpp/macros",
+        "@wfa_common_cpp//src/main/cc/common_cpp/protobuf_util:textproto_io",
     ],
 )
 

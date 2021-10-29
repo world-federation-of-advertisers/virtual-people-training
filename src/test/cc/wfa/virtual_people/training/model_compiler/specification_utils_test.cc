@@ -673,7 +673,7 @@ TEST(CompileActivityDensityFunctionTest, FromVerbatim) {
         verbatim {
           name: "TestAdf"
           identifier_type_filters { op: TRUE }
-          idenitifer_type_names: "TestIdType"
+          identifier_type_names: "TestIdType"
           dirac_mixture {
             alphas: 0
             deltas { coordinates: 0 }
@@ -686,7 +686,7 @@ TEST(CompileActivityDensityFunctionTest, FromVerbatim) {
       R"pb(
         name: "TestAdf"
         identifier_type_filters { op: TRUE }
-        idenitifer_type_names: "TestIdType"
+        identifier_type_names: "TestIdType"
         dirac_mixture {
           alphas: 0
           deltas { coordinates: 0 }
@@ -707,7 +707,7 @@ TEST(CompileActivityDensityFunctionTest, FromFile) {
       R"pb(
         name: "TestAdf"
         identifier_type_filters { op: TRUE }
-        idenitifer_type_names: "TestIdType"
+        identifier_type_names: "TestIdType"
         dirac_mixture {
           alphas: 0
           deltas { coordinates: 0 }

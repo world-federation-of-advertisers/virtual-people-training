@@ -24,7 +24,6 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
 #include "common_cpp/macros/macros.h"
-#include "glog/logging.h"
 #include "wfa/virtual_people/common/field_filter.pb.h"
 #include "wfa/virtual_people/common/field_filter/field_filter.h"
 #include "wfa/virtual_people/common/model.pb.h"
@@ -39,7 +38,7 @@ namespace {
 
 // This stores some information that will be used when building child nodes.
 struct CompilerContext {
-  const CensusRecordsSpecification* census;
+  const CensusRecordsSpecification* census = nullptr;
 };
 
 // Indicates whether the child node is selected by chance or condition.
@@ -155,10 +154,10 @@ absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
   }
 }
 
-absl::Status SantizeAdf(const ActivityDensityFunction& adf) {
-  if (adf.identifier_type_filters_size() != adf.idenitifer_type_names_size()) {
+absl::Status ValidateAdf(const ActivityDensityFunction& adf) {
+  if (adf.identifier_type_filters_size() != adf.identifier_type_names_size()) {
     return absl::InvalidArgumentError(
-        "The count of identifier_type_filters and idenitifer_type_names must "
+        "The count of identifier_type_filters and identifier_type_names must "
         "be the same in ADF.");
   }
   if (!adf.has_dirac_mixture()) {
@@ -182,15 +181,13 @@ absl::Status SantizeAdf(const ActivityDensityFunction& adf) {
   return absl::OkStatus();
 }
 
-absl::StatusOr<absl::flat_hash_map<
-    std::string, absl::flat_hash_map<
-                     std::string, absl::flat_hash_set<const MultipoolRecord*>>>>
-GetCountryRegionMapFromMultipool(const Multipool& multipool) {
-  absl::flat_hash_map<
-      std::string,
-      absl::flat_hash_map<std::string,
-                          absl::flat_hash_set<const MultipoolRecord*>>>
-      geo_multipool_map;
+using MultipoolRecordSet = absl::flat_hash_set<const MultipoolRecord*>;
+using RegionRecordsMap = absl::flat_hash_map<std::string, MultipoolRecordSet>;
+using GeoRecordsMap = absl::flat_hash_map<std::string, RegionRecordsMap>;
+
+absl::StatusOr<GeoRecordsMap> GetCountryRegionMapFromMultipool(
+    const Multipool& multipool) {
+  GeoRecordsMap geo_multipool_map;
   for (const MultipoolRecord& record : multipool.records()) {
     ASSIGN_OR_RETURN(
         std::string country,
@@ -276,9 +273,8 @@ std::vector<uint64_t> SplitPopulationByAlphas(const uint64_t population_sum,
                                               const uint64_t discretization) {
   std::vector<double> boundaries(alphas.size() + 1, 0.0);
   for (int i = 0; i < alphas.size(); ++i) {
-    boundaries[i + 1] = population_sum * alphas[i];
+    boundaries[i + 1] = population_sum * alphas[i] + boundaries[i];
   }
-  std::partial_sum(boundaries.begin(), boundaries.end(), boundaries.begin());
 
   std::vector<uint64_t> discretized_boundaries(boundaries.size(), 0);
   for (int i = 0; i < boundaries.size(); ++i) {
@@ -286,12 +282,12 @@ std::vector<uint64_t> SplitPopulationByAlphas(const uint64_t population_sum,
         round(boundaries[i] / discretization) * discretization);
   }
 
-  std::vector<uint64_t> differences(discretized_boundaries.size());
-  std::adjacent_difference(discretized_boundaries.begin(),
-                           discretized_boundaries.end(), differences.begin());
-
-  std::vector<uint64_t> output(differences.begin() + 1, differences.end());
-  return output;
+  for (int i = 0; i < discretized_boundaries.size() - 1; ++i) {
+    discretized_boundaries[i] =
+        discretized_boundaries[i + 1] - discretized_boundaries[i];
+  }
+  discretized_boundaries.pop_back();
+  return discretized_boundaries;
 }
 
 absl::StatusOr<std::vector<std::vector<PopulationNode::VirtualPersonPool>>>
@@ -371,7 +367,7 @@ absl::StatusOr<BranchNode> CompilePopulationPool(
   ASSIGN_OR_RETURN(
       ActivityDensityFunction adf,
       CompileActivityDensityFunction(population_pool_config.adf()));
-  RETURN_IF_ERROR(SantizeAdf(adf));
+  RETURN_IF_ERROR(ValidateAdf(adf));
   ASSIGN_OR_RETURN(Multipool multipool,
                    CompileMultipool(population_pool_config.multipool()));
   if (!context.census) {
@@ -470,8 +466,8 @@ absl::StatusOr<BranchNode> CompilePopulationPool(
               adf.identifier_type_filters(i);
           CompiledNode* identifier_node = identifier_branch->mutable_node();
           identifier_node->set_name(absl::StrCat(pool_node->name(),
-                                                 "_idenitifer_type_",
-                                                 adf.idenitifer_type_names(i)));
+                                                 "_identifier_type_",
+                                                 adf.identifier_type_names(i)));
 
           identifier_node->mutable_branch_node()->set_random_seed(
               identifier_node->name());

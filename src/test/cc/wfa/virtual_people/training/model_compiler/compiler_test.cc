@@ -16,6 +16,7 @@
 
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
+#include "common_cpp/protobuf_util/textproto_io.h"
 #include "common_cpp/testing/common_matchers.h"
 #include "common_cpp/testing/status_macros.h"
 #include "common_cpp/testing/status_matchers.h"
@@ -30,6 +31,7 @@ namespace {
 
 using ::wfa::EqualsProto;
 using ::wfa::IsOkAndHolds;
+using ::wfa::ReadTextProtoFile;
 using ::wfa::StatusIs;
 
 TEST(CompileTest, ChildrenNotSet) {
@@ -391,229 +393,30 @@ TEST(CompileTest, Multiplicity) {
 
 TEST(CompileTest, PopulationNode) {
   ModelNodeConfig config;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
-      R"pb(
-        name: "node1"
-        census {
-          verbatim {
-            records {
-              attributes {
-                person_country_code: "COUNTRY_CODE_1"
-                person_region_code: "REGION_CODE_1"
-                label {
-                  demo {
-                    gender: GENDER_FEMALE
-                    age { min_age: 18 max_age: 24 }
-                  }
-                }
-              }
-              population_offset: 1000
-              total_population: 5000
-            }
-          }
-        }
-        population_pool_config {
-          adf {
-            verbatim {
-              name: "ADF_1"
-              identifier_type_filters { op: TRUE }
-              idenitifer_type_names: "IDENTIFIER_TYPE_1"
-              dirac_mixture {
-                alphas: 0.4
-                alphas: 0.6
-                deltas { coordinates: 1.9 }
-                deltas { coordinates: 0.4 }
-              }
-            }
-          }
-          multipool {
-            verbatim {
-              records {
-                name: "MULTIPOOL_RECORD_1"
-                condition {
-                  op: AND
-                  sub_filters {
-                    op: EQUAL
-                    name: "person_country_code"
-                    value: "COUNTRY_CODE_1"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "person_region_code"
-                    value: "REGION_CODE_1"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.gender"
-                    value: "GENDER_FEMALE"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.age.min_age"
-                    value: "18"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.age.max_age"
-                    value: "24"
-                  }
-                }
-              }
-            }
-          }
-        }
-      )pb",
-      &config));
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node.textproto",
+          config)
+          .ok());
   CompiledNode expected;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
-      R"pb(
-        name: "node1"
-        branch_node {
-          branches {
-            node {
-              name: "node1_country_COUNTRY_CODE_1"
-              branch_node {
-                branches {
-                  node {
-                    name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1"
-                    branch_node {
-                      branches {
-                        node {
-                          name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1"
-                          branch_node {
-                            branches {
-                              node {
-                                name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_idenitifer_type_IDENTIFIER_TYPE_1"
-                                branch_node {
-                                  branches {
-                                    node {
-                                      name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_idenitifer_type_IDENTIFIER_TYPE_1_delta_0"
-                                      population_node {
-                                        pools {
-                                          population_offset: 1000
-                                          total_population: 2000
-                                        }
-                                      }
-                                    }
-                                    chance: 0.76
-                                  }
-                                  branches {
-                                    node {
-                                      name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_idenitifer_type_IDENTIFIER_TYPE_1_delta_1"
-                                      population_node {
-                                        pools {
-                                          population_offset: 3000
-                                          total_population: 3000
-                                        }
-                                      }
-                                    }
-                                    chance: 0.24
-                                  }
-                                  random_seed: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_idenitifer_type_IDENTIFIER_TYPE_1"
-                                }
-                              }
-                              condition { op: TRUE }
-                            }
-                          }
-                        }
-                        condition {
-                          op: AND
-                          sub_filters {
-                            name: "label.demo.gender"
-                            op: EQUAL
-                            value: "GENDER_FEMALE"
-                          }
-                          sub_filters {
-                            name: "label.demo.age.min_age"
-                            op: EQUAL
-                            value: "18"
-                          }
-                          sub_filters {
-                            name: "label.demo.age.max_age"
-                            op: EQUAL
-                            value: "24"
-                          }
-                        }
-                      }
-                    }
-                  }
-                  condition {
-                    name: "person_region_code"
-                    op: EQUAL
-                    value: "REGION_CODE_1"
-                  }
-                }
-              }
-            }
-            condition {
-              name: "person_country_code"
-              op: EQUAL
-              value: "COUNTRY_CODE_1"
-            }
-          }
-        }
-      )pb",
-      &expected));
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node.textproto",
+          expected)
+          .ok());
   EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
 TEST(CompileTest, PopulationNodeNoCensus) {
   ModelNodeConfig config;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
-      R"pb(
-        name: "node1"
-        population_pool_config {
-          adf {
-            verbatim {
-              name: "ADF_1"
-              identifier_type_filters { op: TRUE }
-              idenitifer_type_names: "IDENTIFIER_TYPE_1"
-              dirac_mixture {
-                alphas: 0.4
-                alphas: 0.6
-                deltas { coordinates: 1.9 }
-                deltas { coordinates: 0.4 }
-              }
-            }
-          }
-          multipool {
-            verbatim {
-              records {
-                name: "MULTIPOOL_RECORD_1"
-                condition {
-                  op: AND
-                  sub_filters {
-                    op: EQUAL
-                    name: "person_country_code"
-                    value: "COUNTRY_CODE_1"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "person_region_code"
-                    value: "REGION_CODE_1"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.gender"
-                    value: "GENDER_FEMALE"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.age.min_age"
-                    value: "18"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.age.max_age"
-                    value: "24"
-                  }
-                }
-              }
-            }
-          }
-        }
-      )pb",
-      &config));
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_no_census.textproto",
+          config)
+          .ok());
   EXPECT_THAT(CompileModel(config).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
                        "Census records data is required to build population "
@@ -622,66 +425,12 @@ TEST(CompileTest, PopulationNodeNoCensus) {
 
 TEST(CompileTest, PopulationNodeNoAdf) {
   ModelNodeConfig config;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
-      R"pb(
-        name: "node1"
-        census {
-          verbatim {
-            records {
-              attributes {
-                person_country_code: "COUNTRY_CODE_1"
-                person_region_code: "REGION_CODE_1"
-                label {
-                  demo {
-                    gender: GENDER_FEMALE
-                    age { min_age: 18 max_age: 24 }
-                  }
-                }
-              }
-              population_offset: 1000
-              total_population: 5000
-            }
-          }
-        }
-        population_pool_config {
-          multipool {
-            verbatim {
-              records {
-                name: "MULTIPOOL_RECORD_1"
-                condition {
-                  op: AND
-                  sub_filters {
-                    op: EQUAL
-                    name: "person_country_code"
-                    value: "COUNTRY_CODE_1"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "person_region_code"
-                    value: "REGION_CODE_1"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.gender"
-                    value: "GENDER_FEMALE"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.age.min_age"
-                    value: "18"
-                  }
-                  sub_filters {
-                    op: EQUAL
-                    name: "label.demo.age.max_age"
-                    value: "24"
-                  }
-                }
-              }
-            }
-          }
-        }
-      )pb",
-      &config));
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_no_adf.textproto",
+          config)
+          .ok());
   EXPECT_THAT(CompileModel(config).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
                        "Neither verbatim nor from_file is set"));
@@ -689,44 +438,12 @@ TEST(CompileTest, PopulationNodeNoAdf) {
 
 TEST(CompileTest, PopulationNodeNoMultipool) {
   ModelNodeConfig config;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
-      R"pb(
-        name: "node1"
-        census {
-          verbatim {
-            records {
-              attributes {
-                person_country_code: "COUNTRY_CODE_1"
-                person_region_code: "REGION_CODE_1"
-                label {
-                  demo {
-                    gender: GENDER_FEMALE
-                    age { min_age: 18 max_age: 24 }
-                  }
-                }
-              }
-              population_offset: 1000
-              total_population: 5000
-            }
-          }
-        }
-        population_pool_config {
-          adf {
-            verbatim {
-              name: "ADF_1"
-              identifier_type_filters { op: TRUE }
-              idenitifer_type_names: "IDENTIFIER_TYPE_1"
-              dirac_mixture {
-                alphas: 0.4
-                alphas: 0.6
-                deltas { coordinates: 1.9 }
-                deltas { coordinates: 0.4 }
-              }
-            }
-          }
-        }
-      )pb",
-      &config));
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_no_multipool.textproto",
+          config)
+          .ok());
   EXPECT_THAT(CompileModel(config).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
                        "Neither verbatim nor from_file is set"));
