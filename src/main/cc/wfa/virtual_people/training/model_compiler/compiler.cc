@@ -438,6 +438,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
       empty_pool->set_total_population(0);
     }
   }
+  return absl::OkStatus();
 }
 
 // Compiling population pool to a BranchNode.
