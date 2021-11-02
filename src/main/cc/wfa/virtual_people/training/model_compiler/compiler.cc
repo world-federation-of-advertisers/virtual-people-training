@@ -360,6 +360,84 @@ std::vector<double> RedistributeProbabilitiesByDeltaPoolSizes(
   return output;
 }
 
+absl::Status CompileAdf(const ActivityDensityFunction& adf,
+                        std::vector<CensusRecord*>& multipool_census,
+                        CompiledNode& pool_node) {
+  for (int i = 0; i < adf.identifier_type_filters_size(); ++i) {
+    ASSIGN_OR_RETURN(std::vector<CensusRecord*> matching_census,
+                     GetDeviceMatchingRecords(multipool_census,
+                                              adf.identifier_type_filters(i)));
+    if (matching_census.empty()) {
+      continue;
+    }
+    Discretize(matching_census, kDiscretization);
+    uint64_t population_sum = GetPopulationSum(matching_census);
+    if (population_sum == 0) {
+      return absl::InvalidArgumentError(
+          "The total population of the matching census records is zero.");
+    }
+
+    std::vector<double> alphas(adf.dirac_mixture().alphas().begin(),
+                               adf.dirac_mixture().alphas().end());
+    RETURN_IF_ERROR(NormalizeIfInError(0.01, alphas));
+
+    std::vector<uint64_t> delta_pool_sizes =
+        SplitPopulationByAlphas(population_sum, alphas, kDiscretization);
+
+    // Build delta pools.
+    ASSIGN_OR_RETURN(
+        std::vector<std::vector<PopulationNode::VirtualPersonPool>> delta_pools,
+        SplitRecordsByDeltaPools(delta_pool_sizes, matching_census));
+
+    // Build probabilities by delta pools.
+    std::vector<double> original_probabilities(
+        adf.dirac_mixture().alphas_size(), 0.0);
+    for (int j = 0; j < adf.dirac_mixture().alphas_size(); ++j) {
+      original_probabilities[j] = adf.dirac_mixture().alphas(j) *
+                                  adf.dirac_mixture().deltas(j).coordinates(i);
+    }
+    RETURN_IF_ERROR(NormalizeIfInError(0.0001, original_probabilities));
+    std::vector<double> probabilities_by_delta =
+        RedistributeProbabilitiesByDeltaPoolSizes(delta_pool_sizes,
+                                                  original_probabilities);
+
+    BranchNode::Branch* identifier_branch =
+        pool_node.mutable_branch_node()->add_branches();
+    *identifier_branch->mutable_condition() = adf.identifier_type_filters(i);
+    CompiledNode* identifier_node = identifier_branch->mutable_node();
+    identifier_node->set_name(absl::StrCat(
+        pool_node.name(), "_identifier_type_", adf.identifier_type_names(i)));
+
+    identifier_node->mutable_branch_node()->set_random_seed(
+        identifier_node->name());
+    for (int j = 0; j < delta_pools.size(); ++j) {
+      BranchNode::Branch* delta_branch =
+          identifier_node->mutable_branch_node()->add_branches();
+      delta_branch->set_chance(probabilities_by_delta[j]);
+      CompiledNode* delta_node = delta_branch->mutable_node();
+      delta_node->set_name(absl::StrCat(identifier_node->name(), "_delta_", j));
+      delta_node->mutable_population_node()->mutable_pools()->Assign(
+          delta_pools[j].begin(), delta_pools[j].end());
+    }
+
+    if (delta_pools.back().empty()) {
+      // Build empty population pool for the case that kappa < 1.
+      CompiledNode* last_delta_node =
+          identifier_node->mutable_branch_node()
+              ->mutable_branches(
+                  identifier_node->branch_node().branches_size() - 1)
+              ->mutable_node();
+      if (last_delta_node->population_node().pools_size() != 0) {
+        return absl::InternalError("Last delta should be empty.");
+      }
+      PopulationNode::VirtualPersonPool* empty_pool =
+          last_delta_node->mutable_population_node()->add_pools();
+      empty_pool->set_population_offset(0);
+      empty_pool->set_total_population(0);
+    }
+  }
+}
+
 // Compiling population pool to a BranchNode.
 absl::StatusOr<BranchNode> CompilePopulationPool(
     const PopulationPoolConfig& population_pool_config,
@@ -398,7 +476,7 @@ absl::StatusOr<BranchNode> CompilePopulationPool(
       region_condition->set_value(region);
       CompiledNode* region_node = region_branch->mutable_node();
       region_node->set_name(
-          absl::StrCat(name, "_country_", country, "_region_", region));
+          absl::StrCat(country_node->name(), "_region_", region));
 
       for (const MultipoolRecord* multipool_record : multipool_records) {
         BranchNode::Branch* pool_branch =
@@ -411,93 +489,14 @@ absl::StatusOr<BranchNode> CompilePopulationPool(
         RemoveEqualFilter(*pool_branch->mutable_condition(),
                           "person_region_code");
         CompiledNode* pool_node = pool_branch->mutable_node();
-        pool_node->set_name(absl::StrCat(name, "_country_", country, "_region_",
-                                         region, "_pool_",
+        pool_node->set_name(absl::StrCat(region_node->name(), "_pool_",
                                          multipool_record->name()));
 
         ASSIGN_OR_RETURN(
             std::vector<CensusRecord*> multipool_census,
             GetMatchingRecords(census, multipool_record->condition()));
 
-        for (int i = 0; i < adf.identifier_type_filters_size(); ++i) {
-          ASSIGN_OR_RETURN(
-              std::vector<CensusRecord*> matching_census,
-              GetDeviceMatchingRecords(multipool_census,
-                                       adf.identifier_type_filters(i)));
-          if (matching_census.empty()) {
-            continue;
-          }
-          Discretize(matching_census, kDiscretization);
-          uint64_t population_sum = GetPopulationSum(matching_census);
-          if (population_sum == 0) {
-            return absl::InvalidArgumentError(
-                "The total population of the matching census records is zero.");
-          }
-
-          std::vector<double> alphas(adf.dirac_mixture().alphas().begin(),
-                                     adf.dirac_mixture().alphas().end());
-          RETURN_IF_ERROR(NormalizeIfInError(0.01, alphas));
-
-          std::vector<uint64_t> delta_pool_sizes =
-              SplitPopulationByAlphas(population_sum, alphas, kDiscretization);
-
-          // Build delta pools.
-          ASSIGN_OR_RETURN(
-              std::vector<std::vector<PopulationNode::VirtualPersonPool>>
-                  delta_pools,
-              SplitRecordsByDeltaPools(delta_pool_sizes, matching_census));
-
-          // Build probabilities by delta pools.
-          std::vector<double> original_probabilities(
-              adf.dirac_mixture().alphas_size(), 0.0);
-          for (int j = 0; j < adf.dirac_mixture().alphas_size(); ++j) {
-            original_probabilities[j] =
-                adf.dirac_mixture().alphas(j) *
-                adf.dirac_mixture().deltas(j).coordinates(i);
-          }
-          RETURN_IF_ERROR(NormalizeIfInError(0.0001, original_probabilities));
-          std::vector<double> probabilities_by_delta =
-              RedistributeProbabilitiesByDeltaPoolSizes(delta_pool_sizes,
-                                                        original_probabilities);
-
-          BranchNode::Branch* identifier_branch =
-              pool_node->mutable_branch_node()->add_branches();
-          *identifier_branch->mutable_condition() =
-              adf.identifier_type_filters(i);
-          CompiledNode* identifier_node = identifier_branch->mutable_node();
-          identifier_node->set_name(absl::StrCat(pool_node->name(),
-                                                 "_identifier_type_",
-                                                 adf.identifier_type_names(i)));
-
-          identifier_node->mutable_branch_node()->set_random_seed(
-              identifier_node->name());
-          for (int j = 0; j < delta_pools.size(); ++j) {
-            BranchNode::Branch* delta_branch =
-                identifier_node->mutable_branch_node()->add_branches();
-            delta_branch->set_chance(probabilities_by_delta[j]);
-            CompiledNode* delta_node = delta_branch->mutable_node();
-            delta_node->set_name(
-                absl::StrCat(identifier_node->name(), "_delta_", j));
-            delta_node->mutable_population_node()->mutable_pools()->Assign(
-                delta_pools[j].begin(), delta_pools[j].end());
-          }
-
-          if (delta_pools.back().empty()) {
-            // Build empty population pool for the case that kappa < 1.
-            CompiledNode* last_delta_node =
-                identifier_node->mutable_branch_node()
-                    ->mutable_branches(
-                        identifier_node->branch_node().branches_size() - 1)
-                    ->mutable_node();
-            if (last_delta_node->population_node().pools_size() != 0) {
-              return absl::InternalError("Last delta should be empty.");
-            }
-            PopulationNode::VirtualPersonPool* empty_pool =
-                last_delta_node->mutable_population_node()->add_pools();
-            empty_pool->set_population_offset(0);
-            empty_pool->set_total_population(0);
-          }
-        }
+        RETURN_IF_ERROR(CompileAdf(adf, multipool_census, *pool_node));
       }
     }
   }
