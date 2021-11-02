@@ -14,6 +14,8 @@
 
 #include "wfa/virtual_people/training/model_compiler/compiler.h"
 
+#include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
 

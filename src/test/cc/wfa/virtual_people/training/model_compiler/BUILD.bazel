@@ -38,10 +38,10 @@ cc_test(
     data = [
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:compiled_node_for_population_node.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:country_code_1_filter.textproto",
+        "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:model_node_config_population_node.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:model_node_config_population_node_no_adf.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:model_node_config_population_node_no_census.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:model_node_config_population_node_no_multipool.textproto",
-        "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:model_node_config_population_node.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:multiplicity.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:true_filter.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:update_matrix.textproto",
