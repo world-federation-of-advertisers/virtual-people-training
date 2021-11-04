@@ -1,0 +1,69 @@
+name: "node1"
+census {
+  verbatim {
+    records {
+      attributes {
+        person_country_code: "COUNTRY_CODE_1"
+        person_region_code: "REGION_CODE_1"
+        label {
+          demo {
+            gender: GENDER_FEMALE
+            age { min_age: 18 max_age: 24 }
+          }
+        }
+      }
+      population_offset: 1000
+      total_population: 5000
+    }
+  }
+}
+population_pool_config {
+  adf {
+    verbatim {
+      name: "ADF_1"
+      identifier_type_filters { op: TRUE }
+      identifier_type_names: "IDENTIFIER_TYPE_1"
+      dirac_mixture {
+        alphas: 0.25
+        alphas: 0.75
+        deltas { coordinates: 1 }
+        deltas { coordinates: 1 }
+      }
+    }
+  }
+  multipool {
+    verbatim {
+      records {
+        name: "MULTIPOOL_RECORD_1"
+        condition {
+          op: AND
+          sub_filters {
+            op: EQUAL
+            name: "person_country_code"
+            value: "COUNTRY_CODE_1"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "person_region_code"
+            value: "REGION_CODE_1"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "label.demo.gender"
+            value: "GENDER_FEMALE"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "label.demo.age.min_age"
+            value: "18"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "label.demo.age.max_age"
+            value: "24"
+          }
+        }
+      }
+    }
+  }
+}

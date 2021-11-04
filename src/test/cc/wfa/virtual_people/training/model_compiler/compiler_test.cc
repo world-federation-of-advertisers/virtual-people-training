@@ -409,6 +409,62 @@ TEST(CompileTest, PopulationNode) {
   EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
+TEST(CompileTest, PopulationNodeDiscretization) {
+  ModelNodeConfig config;
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_discretization.textproto",
+          config)
+          .ok());
+  CompiledNode expected;
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node_discretization.textproto",
+          expected)
+          .ok());
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileTest, PopulationNodeRedistributeProbabilitiesForEmptyPools) {
+  ModelNodeConfig config;
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_redistribute_probabilities_for_"
+          "empty_pools.textproto",
+          config)
+          .ok());
+  CompiledNode expected;
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node_redistribute_probabilities_for_"
+          "empty_pools.textproto",
+          expected)
+          .ok());
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileTest, PopulationNodeKappaLessThanOne) {
+  ModelNodeConfig config;
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_kappa_less_than_one.textproto",
+          config)
+          .ok());
+  CompiledNode expected;
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node_kappa_less_than_one.textproto",
+          expected)
+          .ok());
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
 TEST(CompileTest, PopulationNodeNoCensus) {
   ModelNodeConfig config;
   ASSERT_TRUE(
@@ -447,6 +503,19 @@ TEST(CompileTest, PopulationNodeNoMultipool) {
   EXPECT_THAT(CompileModel(config).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
                        "Neither verbatim nor from_file is set"));
+}
+
+TEST(CompileTest, PopulationNodeAphaNotSumToOne) {
+  ModelNodeConfig config;
+  ASSERT_TRUE(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_alpha_not_sum_to_one.textproto",
+          config)
+          .ok());
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Input do not sum up to 1"));
 }
 
 }  // namespace

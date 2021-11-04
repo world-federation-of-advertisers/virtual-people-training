@@ -255,8 +255,8 @@ uint64_t GetPopulationSum(const std::vector<CensusRecord*>& records) {
 
 // Return error status if the @input is not normalized in the @allowed_error.
 // Otherwise, normalize the @input.
-absl::Status NormalizeIfInError(const double allowed_error,
-                                std::vector<double>& input) {
+absl::Status NormalizeIfSumCloseToOne(const double allowed_error,
+                                      std::vector<double>& input) {
   double total = std::accumulate(input.begin(), input.end(), 0.0);
   if (total < 1.0 - allowed_error || total > 1.0 + allowed_error) {
     return absl::InvalidArgumentError("Input do not sum up to 1.");
@@ -270,6 +270,12 @@ absl::Status NormalizeIfInError(const double allowed_error,
 // Split @population_sum by the ratio of @alphas.
 // @alphas should be normalized.
 // The return is discretized.
+// TODO(@tcsnfkx): Improve the algorithm to minimize the error.
+//                 This does not necessarily minimize the error. For example,
+//                   population_sum = 3000
+//                   alphas = [0.24, 0.25, 0.51]
+//                   discretization = 1000
+//                 We will get [1000, 0, 2000].
 std::vector<uint64_t> SplitPopulationByAlphas(const uint64_t population_sum,
                                               const std::vector<double>& alphas,
                                               const uint64_t discretization) {
@@ -292,6 +298,10 @@ std::vector<uint64_t> SplitPopulationByAlphas(const uint64_t population_sum,
   return discretized_boundaries;
 }
 
+// Convert @records to VirtualPersonPools.
+// The VirtualPersonPools are grouped based on @delta_pool_sizes. For the i-th
+// group of VirtualPersonPools, the total populaton equals to the i-th value of
+// @delta_pool_sizes.
 absl::StatusOr<std::vector<std::vector<PopulationNode::VirtualPersonPool>>>
 SplitRecordsByDeltaPools(const std::vector<uint64_t>& delta_pool_sizes,
                          const std::vector<CensusRecord*>& records) {
@@ -381,7 +391,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
 
     std::vector<double> alphas(adf.dirac_mixture().alphas().begin(),
                                adf.dirac_mixture().alphas().end());
-    RETURN_IF_ERROR(NormalizeIfInError(0.01, alphas));
+    RETURN_IF_ERROR(NormalizeIfSumCloseToOne(0.01, alphas));
 
     std::vector<uint64_t> delta_pool_sizes =
         SplitPopulationByAlphas(population_sum, alphas, kDiscretization);
@@ -398,7 +408,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
       original_probabilities[j] = adf.dirac_mixture().alphas(j) *
                                   adf.dirac_mixture().deltas(j).coordinates(i);
     }
-    RETURN_IF_ERROR(NormalizeIfInError(0.0001, original_probabilities));
+    RETURN_IF_ERROR(NormalizeIfSumCloseToOne(0.0001, original_probabilities));
     std::vector<double> probabilities_by_delta =
         RedistributeProbabilitiesByDeltaPoolSizes(delta_pool_sizes,
                                                   original_probabilities);

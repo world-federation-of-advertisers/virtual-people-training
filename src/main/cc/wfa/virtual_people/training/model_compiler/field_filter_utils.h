@@ -30,6 +30,7 @@ FieldFilterProto CreateTrueFilter();
 // @filter.name matches @name.
 // If @filter.op is AND, apply the check to each of the @filter.sub_filters, and
 // return the value if any matching entity is found.
+// Only the value of the first matching is returned.
 // Return error status if no matching field filter is found.
 // Example 1:
 // If filter is
