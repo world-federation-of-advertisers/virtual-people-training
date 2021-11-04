@@ -30,7 +30,8 @@ FieldFilterProto CreateTrueFilter();
 // @filter.name matches @name.
 // If @filter.op is AND, apply the check to each of the @filter.sub_filters, and
 // return the value if any matching entity is found.
-// Only the value of the first matching is returned.
+// Only the value of the first matching is returned. This will not catch errors
+// that there are multiple sub_filters on the same field with different values.
 // Return error status if no matching field filter is found.
 // Example 1:
 // If filter is
@@ -111,6 +112,9 @@ absl::StatusOr<std::string> GetValueOfEqualFilter(
 //   value: "2"
 //
 // Example 3:
+// This is just an example of removing multiple sub_filters. Never use any
+// filter with multiple EQUAL sub_filters that have same name but different
+// values in real use cases.
 // If filter is
 //   op: AND
 //   sub_filters {
