@@ -513,9 +513,9 @@ TEST(CompileTest, PopulationNodeAphaNotSumToOne) {
           "model_node_config_population_node_alpha_not_sum_to_one.textproto",
           config)
           .ok());
-  EXPECT_THAT(CompileModel(config).status(),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       "Input do not sum up to 1"));
+  EXPECT_THAT(
+      CompileModel(config).status(),
+      StatusIs(absl::StatusCode::kInvalidArgument, "Input do not sum up to 1"));
 }
 
 }  // namespace
