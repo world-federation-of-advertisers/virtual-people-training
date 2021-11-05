@@ -1,0 +1,51 @@
+name: "node1"
+population_pool_config {
+  adf {
+    verbatim {
+      name: "ADF_1"
+      identifier_type_filters { op: TRUE }
+      identifier_type_names: "IDENTIFIER_TYPE_1"
+      dirac_mixture {
+        alphas: 0.4
+        alphas: 0.6
+        deltas { coordinates: 1.9 }
+        deltas { coordinates: 0.4 }
+      }
+    }
+  }
+  multipool {
+    verbatim {
+      records {
+        name: "MULTIPOOL_RECORD_1"
+        condition {
+          op: AND
+          sub_filters {
+            op: EQUAL
+            name: "person_country_code"
+            value: "COUNTRY_CODE_1"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "person_region_code"
+            value: "REGION_CODE_1"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "label.demo.gender"
+            value: "GENDER_FEMALE"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "label.demo.age.min_age"
+            value: "18"
+          }
+          sub_filters {
+            op: EQUAL
+            name: "label.demo.age.max_age"
+            value: "24"
+          }
+        }
+      }
+    }
+  }
+}

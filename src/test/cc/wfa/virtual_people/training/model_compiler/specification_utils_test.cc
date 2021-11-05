@@ -666,5 +666,177 @@ TEST(CompileMultiplicityTest, NotSet) {
                        "Neither verbatim nor from_file is set"));
 }
 
+TEST(CompileActivityDensityFunctionTest, FromVerbatim) {
+  ActivityDensityFunctionSpecification config;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        verbatim {
+          name: "TestAdf"
+          identifier_type_filters { op: TRUE }
+          identifier_type_names: "TestIdType"
+          dirac_mixture {
+            alphas: 0
+            deltas { coordinates: 0 }
+          }
+        }
+      )pb",
+      &config));
+  ActivityDensityFunction expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        name: "TestAdf"
+        identifier_type_filters { op: TRUE }
+        identifier_type_names: "TestIdType"
+        dirac_mixture {
+          alphas: 0
+          deltas { coordinates: 0 }
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileActivityDensityFunction(config),
+              IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileActivityDensityFunctionTest, FromFile) {
+  ActivityDensityFunctionSpecification config;
+  config.set_from_file(
+      "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+      "activity_density_function.textproto");
+  ActivityDensityFunction expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        name: "TestAdf"
+        identifier_type_filters { op: TRUE }
+        identifier_type_names: "TestIdType"
+        dirac_mixture {
+          alphas: 0
+          deltas { coordinates: 0 }
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileActivityDensityFunction(config),
+              IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileActivityDensityFunctionTest, NotSet) {
+  ActivityDensityFunctionSpecification config;
+  EXPECT_THAT(CompileActivityDensityFunction(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
+}
+
+TEST(CompileMultipoolTest, FromVerbatim) {
+  MultipoolSpecification config;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        verbatim {
+          records {
+            name: "COUNTRY_CODE_1_filter"
+            condition {
+              op: EQUAL
+              name: "person_country_code"
+              value: "COUNTRY_CODE_1"
+            }
+          }
+        }
+      )pb",
+      &config));
+  Multipool expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        records {
+          name: "COUNTRY_CODE_1_filter"
+          condition {
+            op: EQUAL
+            name: "person_country_code"
+            value: "COUNTRY_CODE_1"
+          }
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileMultipool(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileMultipoolTest, FromFile) {
+  MultipoolSpecification config;
+  config.set_from_file(
+      "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+      "multipool.textproto");
+  Multipool expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        records {
+          name: "COUNTRY_CODE_1_filter"
+          condition {
+            op: EQUAL
+            name: "person_country_code"
+            value: "COUNTRY_CODE_1"
+          }
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileMultipool(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileMultipoolTest, NotSet) {
+  MultipoolSpecification config;
+  EXPECT_THAT(CompileMultipool(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
+}
+
+TEST(CompileCensusRecordsTest, FromVerbatim) {
+  CensusRecordsSpecification config;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        verbatim {
+          records {
+            attributes { person_country_code: "COUNTRY_CODE_1" }
+            population_offset: 0
+            total_population: 100
+          }
+        }
+      )pb",
+      &config));
+  CensusRecords expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        records {
+          attributes { person_country_code: "COUNTRY_CODE_1" }
+          population_offset: 0
+          total_population: 100
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileCensusRecords(config),
+              IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileCensusRecordsTest, FromFile) {
+  CensusRecordsSpecification config;
+  config.set_from_file(
+      "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+      "census_records.textproto");
+  CensusRecords expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        records {
+          attributes { person_country_code: "COUNTRY_CODE_1" }
+          population_offset: 0
+          total_population: 100
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileCensusRecords(config),
+              IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileCensusRecordsTest, NotSet) {
+  CensusRecordsSpecification config;
+  EXPECT_THAT(CompileCensusRecords(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
+}
+
 }  // namespace
 }  // namespace wfa_virtual_people

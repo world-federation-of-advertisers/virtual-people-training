@@ -16,6 +16,7 @@
 
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
+#include "common_cpp/protobuf_util/textproto_io.h"
 #include "common_cpp/testing/common_matchers.h"
 #include "common_cpp/testing/status_macros.h"
 #include "common_cpp/testing/status_matchers.h"
@@ -29,7 +30,9 @@ namespace wfa_virtual_people {
 namespace {
 
 using ::wfa::EqualsProto;
+using ::wfa::IsOk;
 using ::wfa::IsOkAndHolds;
+using ::wfa::ReadTextProtoFile;
 using ::wfa::StatusIs;
 
 TEST(CompileTest, ChildrenNotSet) {
@@ -387,6 +390,133 @@ TEST(CompileTest, Multiplicity) {
       )pb",
       &expected));
   EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileTest, PopulationNode) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node.textproto",
+          config),
+      IsOk());
+  CompiledNode expected;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node.textproto",
+          expected),
+      IsOk());
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileTest, PopulationNodeDiscretization) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_discretization.textproto",
+          config),
+      IsOk());
+  CompiledNode expected;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node_discretization.textproto",
+          expected),
+      IsOk());
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileTest, PopulationNodeRedistributeProbabilitiesForEmptyPools) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_redistribute_probabilities_for_"
+          "empty_pools.textproto",
+          config),
+      IsOk());
+  CompiledNode expected;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node_redistribute_probabilities_for_"
+          "empty_pools.textproto",
+          expected),
+      IsOk());
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileTest, PopulationNodeKappaLessThanOne) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_kappa_less_than_one.textproto",
+          config),
+      IsOk());
+  CompiledNode expected;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "compiled_node_for_population_node_kappa_less_than_one.textproto",
+          expected),
+      IsOk());
+  EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileTest, PopulationNodeNoCensus) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_no_census.textproto",
+          config),
+      IsOk());
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Census records data is required to build population "
+                       "pool"));
+}
+
+TEST(CompileTest, PopulationNodeNoAdf) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_no_adf.textproto",
+          config),
+      IsOk());
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
+}
+
+TEST(CompileTest, PopulationNodeNoMultipool) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_no_multipool.textproto",
+          config),
+      IsOk());
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
+}
+
+TEST(CompileTest, PopulationNodeAlphaNotSumToOne) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_alpha_not_sum_to_one.textproto",
+          config),
+      IsOk());
+  EXPECT_THAT(
+      CompileModel(config).status(),
+      StatusIs(absl::StatusCode::kInvalidArgument, "Input do not sum up to 1"));
 }
 
 }  // namespace

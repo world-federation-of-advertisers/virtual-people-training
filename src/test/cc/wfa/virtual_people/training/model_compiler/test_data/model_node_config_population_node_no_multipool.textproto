@@ -1,0 +1,34 @@
+name: "node1"
+census {
+  verbatim {
+    records {
+      attributes {
+        person_country_code: "COUNTRY_CODE_1"
+        person_region_code: "REGION_CODE_1"
+        label {
+          demo {
+            gender: GENDER_FEMALE
+            age { min_age: 18 max_age: 24 }
+          }
+        }
+      }
+      population_offset: 1000
+      total_population: 5000
+    }
+  }
+}
+population_pool_config {
+  adf {
+    verbatim {
+      name: "ADF_1"
+      identifier_type_filters { op: TRUE }
+      identifier_type_names: "IDENTIFIER_TYPE_1"
+      dirac_mixture {
+        alphas: 0.4
+        alphas: 0.6
+        deltas { coordinates: 1.9 }
+        deltas { coordinates: 0.4 }
+      }
+    }
+  }
+}
