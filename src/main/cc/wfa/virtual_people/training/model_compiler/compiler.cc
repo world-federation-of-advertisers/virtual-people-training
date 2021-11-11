@@ -356,8 +356,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
                         std::vector<CensusRecord*>& matching_census,
                         CompiledNode& pool_node) {
   for (int i = 0; i < adf.identifier_type_filters_size(); ++i) {
-    // Only full ADF is supported, so it is not necessary to filter
-    // CensusRecords by device.
+    // Filtering CensusRecords by device is not necessary in current design.
     if (matching_census.empty()) {
       continue;
     }
