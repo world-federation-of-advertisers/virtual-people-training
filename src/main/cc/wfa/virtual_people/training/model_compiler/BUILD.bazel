@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 package(default_visibility = [
     "//src/main/cc/wfa/virtual_people/training/model_compiler:__subpackages__",
@@ -52,5 +52,21 @@ cc_library(
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
         "@virtual_people_common//src/main/proto/wfa/virtual_people/common:field_filter_cc_proto",
+    ],
+)
+
+cc_binary(
+    name = "compiler_main",
+    srcs = ["compiler_main.cc"],
+    deps = [
+        ":compiler",
+        "//src/main/proto/wfa/virtual_people/training:model_config_cc_proto",
+        "@com_github_google_glog//:glog",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto",
+        "@wfa_common_cpp//src/main/cc/common_cpp/protobuf_util:textproto_io",
     ],
 )
