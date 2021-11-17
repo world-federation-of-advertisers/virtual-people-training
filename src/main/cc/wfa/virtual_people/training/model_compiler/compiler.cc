@@ -225,26 +225,6 @@ void Discretize(std::vector<CensusRecord*>& records,
   }
 }
 
-bool IsDeviceMatch(const CensusRecord& record, const FieldFilter& filter) {
-  // TODO(@tcsnfkx): Implement device match. Currently always return true.
-  return true;
-}
-
-// Return the records from @records, which match the device filters in
-// @condition.
-absl::StatusOr<std::vector<CensusRecord*>> GetDeviceMatchingRecords(
-    std::vector<CensusRecord*>& records, const FieldFilterProto& condition) {
-  std::vector<CensusRecord*> matching;
-  ASSIGN_OR_RETURN(std::unique_ptr<FieldFilter> filter,
-                   FieldFilter::New(LabelerEvent().GetDescriptor(), condition));
-  for (CensusRecord* record : records) {
-    if (IsDeviceMatch(*record, *filter)) {
-      matching.push_back(record);
-    }
-  }
-  return matching;
-}
-
 uint64_t GetPopulationSum(const std::vector<CensusRecord*>& records) {
   uint64_t sum = 0;
   for (const CensusRecord* record : records) {
@@ -373,12 +353,10 @@ std::vector<double> RedistributeProbabilitiesByDeltaPoolSizes(
 }
 
 absl::Status CompileAdf(const ActivityDensityFunction& adf,
-                        std::vector<CensusRecord*>& multipool_census,
+                        std::vector<CensusRecord*>& matching_census,
                         CompiledNode& pool_node) {
   for (int i = 0; i < adf.identifier_type_filters_size(); ++i) {
-    ASSIGN_OR_RETURN(std::vector<CensusRecord*> matching_census,
-                     GetDeviceMatchingRecords(multipool_census,
-                                              adf.identifier_type_filters(i)));
+    // Filtering CensusRecords by device is not necessary in current design.
     if (matching_census.empty()) {
       continue;
     }
