@@ -1,0 +1,52 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+package(default_visibility = [
+    "//src/main/cc/wfa/virtual_people/training/model_checker:__subpackages__",
+    "//src/test/cc/wfa/virtual_people/training/model_checker:__subpackages__",
+])
+
+_INCLUDE_PREFIX = "/src/main/cc"
+
+cc_library(
+    name = "model_names_checker",
+    srcs = ["model_names_checker.cc"],
+    hdrs = ["model_names_checker.h"],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto",
+    ],
+)
+
+cc_library(
+    name = "model_seeds_checker",
+    srcs = ["model_seeds_checker.cc"],
+    hdrs = ["model_seeds_checker.h"],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+        "@wfa_common_cpp//src/main/cc/common_cpp/macros",
+        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto",
+    ],
+)
+
+cc_binary(
+    name = "model_checker_main",
+    srcs = ["model_checker_main.cc"],
+    deps = [
+        ":model_names_checker",
+        ":model_seeds_checker",
+        "@com_github_google_glog//:glog",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/status",
+        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto",
+        "@wfa_common_cpp//src/main/cc/common_cpp/protobuf_util:riegeli_io",
+    ],
+)
