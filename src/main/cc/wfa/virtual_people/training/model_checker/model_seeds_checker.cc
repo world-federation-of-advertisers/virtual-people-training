@@ -51,9 +51,9 @@ absl::StatusOr<absl::flat_hash_map<int, int>> GetParentIndexMap(
         // Get the index in @nodes of the child node.
         auto it = node_index_to_vector_index.find(branch.node_index());
         if (it == node_index_to_vector_index.end()) {
-          return absl::FailedPreconditionError(absl::StrCat(
-              "This node refers to non-existing child node: ",
-              nodes[i].DebugString()));
+          return absl::FailedPreconditionError(
+              absl::StrCat("This node refers to non-existing child node: ",
+                           nodes[i].DebugString()));
         }
         parant_vector_index[it->second] = i;
       }
@@ -102,8 +102,7 @@ absl::flat_hash_set<std::string> GetRandomSeeds(const CompiledNode& node) {
 }
 
 absl::Status CheckNodeSeeds(const std::vector<CompiledNode>& nodes) {
-  ASSIGN_OR_RETURN(auto parant_vector_index,
-                   GetParentIndexMap(nodes));
+  ASSIGN_OR_RETURN(auto parant_vector_index, GetParentIndexMap(nodes));
   // To store the indexes of the nodes that has any duplicated random seed.
   std::vector<int> violation_indexes;
   for (int i = 0; i < nodes.size(); ++i) {

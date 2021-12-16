@@ -34,10 +34,7 @@ TEST(CheckNodeSeedsTest, NoDuplicatedSeed) {
         name: "node1"
         index: 1
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -47,10 +44,7 @@ TEST(CheckNodeSeedsTest, NoDuplicatedSeed) {
         name: "node2"
         index: 2
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_2"
         }
       )pb",
@@ -60,14 +54,8 @@ TEST(CheckNodeSeedsTest, NoDuplicatedSeed) {
         name: "node3"
         index: 3
         branch_node {
-          branches {
-            node_index: 1
-            chance: 0.5
-          }
-          branches {
-            node_index: 2
-            chance: 0.5
-          }
+          branches { node_index: 1 chance: 0.5 }
+          branches { node_index: 2 chance: 0.5 }
           random_seed: "seed_3"
         }
       )pb",
@@ -82,10 +70,7 @@ TEST(CheckNodeSeedsTest, SingleDuplicatedSeed) {
         name: "node1"
         index: 1
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -95,10 +80,7 @@ TEST(CheckNodeSeedsTest, SingleDuplicatedSeed) {
         name: "node2"
         index: 2
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_2"
         }
       )pb",
@@ -108,14 +90,8 @@ TEST(CheckNodeSeedsTest, SingleDuplicatedSeed) {
         name: "node3"
         index: 3
         branch_node {
-          branches {
-            node_index: 1
-            chance: 0.5
-          }
-          branches {
-            node_index: 2
-            chance: 0.5
-          }
+          branches { node_index: 1 chance: 0.5 }
+          branches { node_index: 2 chance: 0.5 }
           random_seed: "seed_1"
         }
       )pb",
@@ -134,9 +110,9 @@ TEST(CheckNodeSeedsTest, SingleDuplicatedSeed) {
       "  random_seed: \"seed_1\"\n"
       "}\n"
       "\n";
-  EXPECT_THAT(CheckNodeSeeds(nodes),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       expected_error_message));
+  EXPECT_THAT(
+      CheckNodeSeeds(nodes),
+      StatusIs(absl::StatusCode::kInvalidArgument, expected_error_message));
 }
 
 TEST(CheckNodeSeedsTest, MultipleDuplicatedSeed) {
@@ -146,10 +122,7 @@ TEST(CheckNodeSeedsTest, MultipleDuplicatedSeed) {
         name: "node1"
         index: 1
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -159,10 +132,7 @@ TEST(CheckNodeSeedsTest, MultipleDuplicatedSeed) {
         name: "node2"
         index: 2
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -172,14 +142,8 @@ TEST(CheckNodeSeedsTest, MultipleDuplicatedSeed) {
         name: "node3"
         index: 3
         branch_node {
-          branches {
-            node_index: 1
-            chance: 0.5
-          }
-          branches {
-            node_index: 2
-            chance: 0.5
-          }
+          branches { node_index: 1 chance: 0.5 }
+          branches { node_index: 2 chance: 0.5 }
           random_seed: "seed_1"
         }
       )pb",
@@ -209,9 +173,9 @@ TEST(CheckNodeSeedsTest, MultipleDuplicatedSeed) {
       "  random_seed: \"seed_1\"\n"
       "}\n"
       "\n";
-  EXPECT_THAT(CheckNodeSeeds(nodes),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       expected_error_message));
+  EXPECT_THAT(
+      CheckNodeSeeds(nodes),
+      StatusIs(absl::StatusCode::kInvalidArgument, expected_error_message));
 }
 
 TEST(CheckNodeSeedsTest, DuplicatedSeedInNotImmediateAncestor) {
@@ -221,10 +185,7 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInNotImmediateAncestor) {
         name: "node1"
         index: 1
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -234,10 +195,7 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInNotImmediateAncestor) {
         name: "node2"
         index: 2
         branch_node {
-          branches {
-            node_index: 1
-            chance: 1
-          }
+          branches { node_index: 1 chance: 1 }
           random_seed: "seed_2"
         }
       )pb",
@@ -247,10 +205,7 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInNotImmediateAncestor) {
         name: "node3"
         index: 3
         branch_node {
-          branches {
-            node_index: 2
-            chance: 1
-          }
+          branches { node_index: 2 chance: 1 }
           random_seed: "seed_1"
         }
       )pb",
@@ -269,9 +224,9 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInNotImmediateAncestor) {
       "  random_seed: \"seed_1\"\n"
       "}\n"
       "\n";
-  EXPECT_THAT(CheckNodeSeeds(nodes),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       expected_error_message));
+  EXPECT_THAT(
+      CheckNodeSeeds(nodes),
+      StatusIs(absl::StatusCode::kInvalidArgument, expected_error_message));
 }
 
 TEST(CheckNodeSeedsTest, DuplicatedSeedInUpdateMatrix) {
@@ -281,10 +236,7 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInUpdateMatrix) {
         name: "node1"
         index: 1
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -294,14 +246,9 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInUpdateMatrix) {
         name: "node2"
         index: 2
         branch_node {
-          branches {
-            node_index: 1
-            chance: 1
-          }
+          branches { node_index: 1 chance: 1 }
           random_seed: "seed_2"
-          updates { updates { update_matrix {
-            random_seed: "seed_1"
-          }}}
+          updates { updates { update_matrix { random_seed: "seed_1" } } }
         }
       )pb",
       &nodes.emplace_back()));
@@ -319,9 +266,9 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInUpdateMatrix) {
       "  random_seed: \"seed_1\"\n"
       "}\n"
       "\n";
-  EXPECT_THAT(CheckNodeSeeds(nodes),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       expected_error_message));
+  EXPECT_THAT(
+      CheckNodeSeeds(nodes),
+      StatusIs(absl::StatusCode::kInvalidArgument, expected_error_message));
 }
 
 TEST(CheckNodeSeedsTest, DuplicatedSeedInSparseUpdateMatrix) {
@@ -331,10 +278,7 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInSparseUpdateMatrix) {
         name: "node1"
         index: 1
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -344,14 +288,9 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInSparseUpdateMatrix) {
         name: "node2"
         index: 2
         branch_node {
-          branches {
-            node_index: 1
-            chance: 1
-          }
+          branches { node_index: 1 chance: 1 }
           random_seed: "seed_2"
-          updates { updates { sparse_update_matrix {
-            random_seed: "seed_1"
-          }}}
+          updates { updates { sparse_update_matrix { random_seed: "seed_1" } } }
         }
       )pb",
       &nodes.emplace_back()));
@@ -369,9 +308,9 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInSparseUpdateMatrix) {
       "  random_seed: \"seed_1\"\n"
       "}\n"
       "\n";
-  EXPECT_THAT(CheckNodeSeeds(nodes),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       expected_error_message));
+  EXPECT_THAT(
+      CheckNodeSeeds(nodes),
+      StatusIs(absl::StatusCode::kInvalidArgument, expected_error_message));
 }
 
 TEST(CheckNodeSeedsTest, DuplicatedSeedInMultiplicity) {
@@ -381,10 +320,7 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInMultiplicity) {
         name: "node1"
         index: 1
         population_node {
-          pools {
-            population_offset: 1000
-            total_population: 100
-          }
+          pools { population_offset: 1000 total_population: 100 }
           random_seed: "seed_1"
         }
       )pb",
@@ -394,14 +330,9 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInMultiplicity) {
         name: "node2"
         index: 2
         branch_node {
-          branches {
-            node_index: 1
-            chance: 1
-          }
+          branches { node_index: 1 chance: 1 }
           random_seed: "seed_2"
-          multiplicity {
-            random_seed: "seed_1"
-          }
+          multiplicity { random_seed: "seed_1" }
         }
       )pb",
       &nodes.emplace_back()));
@@ -419,9 +350,9 @@ TEST(CheckNodeSeedsTest, DuplicatedSeedInMultiplicity) {
       "  random_seed: \"seed_1\"\n"
       "}\n"
       "\n";
-  EXPECT_THAT(CheckNodeSeeds(nodes),
-              StatusIs(absl::StatusCode::kInvalidArgument,
-                       expected_error_message));
+  EXPECT_THAT(
+      CheckNodeSeeds(nodes),
+      StatusIs(absl::StatusCode::kInvalidArgument, expected_error_message));
 }
 
 }  // namespace
