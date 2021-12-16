@@ -14,6 +14,7 @@
 
 #include "wfa/virtual_people/training/model_checker/model_names_checker.h"
 
+#include <string>
 #include <vector>
 
 #include "absl/container/flat_hash_set.h"
