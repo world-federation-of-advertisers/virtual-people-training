@@ -28,11 +28,11 @@ absl::Status CheckNodeNames(const std::vector<CompiledNode>& nodes) {
   absl::flat_hash_set<std::string> names;
   for (const CompiledNode& node : nodes) {
     std::string name = node.name();
-    if (names.contains(name)) {
+    auto [it, inserted] = names.insert(node.name());
+    if (!inserted) {
       return absl::InvalidArgumentError(
           absl::StrCat("Duplicated node names: ", name));
     }
-    names.emplace(node.name());
   }
   return absl::OkStatus();
 }

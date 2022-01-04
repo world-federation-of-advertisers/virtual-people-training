@@ -39,71 +39,83 @@ absl::StatusOr<absl::flat_hash_map<int, int>> GetParentIndexMap(
     }
   }
 
-  absl::flat_hash_map<int, int> parant_vector_index;
+  absl::flat_hash_map<int, int> parent_vector_index;
   for (int i = 0; i < nodes.size(); ++i) {
-    if (nodes[i].has_branch_node()) {
-      for (const BranchNode::Branch& branch :
-           nodes[i].branch_node().branches()) {
-        if (!branch.has_node_index()) {
-          return absl::FailedPreconditionError(absl::StrCat(
-              "This node contains branch not referenced by index: ",
-              nodes[i].DebugString()));
-        }
-        // Get the index in @nodes of the child node.
-        auto it = node_index_to_vector_index.find(branch.node_index());
-        if (it == node_index_to_vector_index.end()) {
-          return absl::FailedPreconditionError(
-              absl::StrCat("This node refers to non-existing child node: ",
-                           nodes[i].DebugString()));
-        }
-        parant_vector_index[it->second] = i;
+    if (!nodes[i].has_branch_node()) {
+      continue;
+    }
+    for (const BranchNode::Branch& branch : nodes[i].branch_node().branches()) {
+      if (!branch.has_node_index()) {
+        return absl::FailedPreconditionError(
+            absl::StrCat("This node contains branch not referenced by index: ",
+                         nodes[i].DebugString()));
       }
+      // Get the index in @nodes of the child node.
+      auto it = node_index_to_vector_index.find(branch.node_index());
+      if (it == node_index_to_vector_index.end()) {
+        return absl::FailedPreconditionError(
+            absl::StrCat("This node refers to non-existing child node: ",
+                         nodes[i].DebugString()));
+      }
+      parent_vector_index[it->second] = i;
     }
   }
-  return parant_vector_index;
+  return parent_vector_index;
+}
+
+// Add the random seeds in @branch_node to @random_seeds.
+void GetRandomSeedsForBranchNode(
+    const BranchNode& branch_node,
+    absl::flat_hash_set<std::string>& random_seeds) {
+  if (branch_node.has_random_seed()) {
+    random_seeds.insert(branch_node.random_seed());
+  }
+  if (branch_node.has_updates()) {
+    for (const BranchNode::AttributesUpdater& updater :
+         branch_node.updates().updates()) {
+      if (updater.has_update_matrix()) {
+        const UpdateMatrix& update_matrix = updater.update_matrix();
+        if (update_matrix.has_random_seed()) {
+          random_seeds.insert(update_matrix.random_seed());
+        }
+      } else if (updater.has_sparse_update_matrix()) {
+        const SparseUpdateMatrix& sparse_update_matrix =
+            updater.sparse_update_matrix();
+        if (sparse_update_matrix.has_random_seed()) {
+          random_seeds.insert(sparse_update_matrix.random_seed());
+        }
+      }
+    }
+  } else if (branch_node.has_multiplicity()) {
+    const Multiplicity& multiplicity = branch_node.multiplicity();
+    if (multiplicity.has_random_seed()) {
+      random_seeds.insert(multiplicity.random_seed());
+    }
+  }
+}
+
+// Add the random seeds in @population_node to @random_seeds.
+void GetRandomSeedForPopulationNode(
+    const PopulationNode& population_node,
+    absl::flat_hash_set<std::string>& random_seeds) {
+  if (population_node.has_random_seed()) {
+    random_seeds.insert(population_node.random_seed());
+  }
 }
 
 // Get all the random seeds from the node.
 absl::flat_hash_set<std::string> GetRandomSeeds(const CompiledNode& node) {
   absl::flat_hash_set<std::string> random_seeds;
   if (node.has_branch_node()) {
-    const BranchNode& branch_node = node.branch_node();
-    if (branch_node.has_random_seed()) {
-      random_seeds.insert(branch_node.random_seed());
-    }
-    if (branch_node.has_updates()) {
-      for (const BranchNode::AttributesUpdater& updater :
-           branch_node.updates().updates()) {
-        if (updater.has_update_matrix()) {
-          const UpdateMatrix& update_matrix = updater.update_matrix();
-          if (update_matrix.has_random_seed()) {
-            random_seeds.insert(update_matrix.random_seed());
-          }
-        } else if (updater.has_sparse_update_matrix()) {
-          const SparseUpdateMatrix& sparse_update_matrix =
-              updater.sparse_update_matrix();
-          if (sparse_update_matrix.has_random_seed()) {
-            random_seeds.insert(sparse_update_matrix.random_seed());
-          }
-        }
-      }
-    } else if (branch_node.has_multiplicity()) {
-      const Multiplicity& multiplicity = branch_node.multiplicity();
-      if (multiplicity.has_random_seed()) {
-        random_seeds.insert(multiplicity.random_seed());
-      }
-    }
+    GetRandomSeedsForBranchNode(node.branch_node(), random_seeds);
   } else if (node.has_population_node()) {
-    const PopulationNode& population_node = node.population_node();
-    if (population_node.has_random_seed()) {
-      random_seeds.insert(population_node.random_seed());
-    }
+    GetRandomSeedForPopulationNode(node.population_node(), random_seeds);
   }
   return random_seeds;
 }
 
 absl::Status CheckNodeSeeds(const std::vector<CompiledNode>& nodes) {
-  ASSIGN_OR_RETURN(auto parant_vector_index, GetParentIndexMap(nodes));
+  ASSIGN_OR_RETURN(auto parent_vector_index, GetParentIndexMap(nodes));
   // To store the indexes of the nodes that has any duplicated random seed.
   std::vector<int> violation_indexes;
   for (int i = 0; i < nodes.size(); ++i) {
@@ -113,8 +125,8 @@ absl::Status CheckNodeSeeds(const std::vector<CompiledNode>& nodes) {
     int current_index = i;
     while (true) {
       // Get the parent of the current node to be the current ancestor node.
-      auto it = parant_vector_index.find(current_index);
-      if (it == parant_vector_index.end()) {
+      auto it = parent_vector_index.find(current_index);
+      if (it == parent_vector_index.end()) {
         break;
       }
       current_index = it->second;
@@ -125,8 +137,7 @@ absl::Status CheckNodeSeeds(const std::vector<CompiledNode>& nodes) {
       // random seeds of the current ancestor node.
       bool has_duplicate = false;
       for (const std::string& random_seed : random_seeds) {
-        if (ancestor_random_seeds.find(random_seed) !=
-            ancestor_random_seeds.end()) {
+        if (ancestor_random_seeds.contains(random_seed)) {
           has_duplicate = true;
           violation_indexes.push_back(i);
           break;
