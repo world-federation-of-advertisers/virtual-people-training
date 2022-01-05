@@ -50,6 +50,8 @@ int main(int argc, char** argv) {
       wfa::ReadRiegeliFile<wfa_virtual_people::CompiledNode>(model_path, nodes);
   CHECK(read_status.ok()) << read_status;
 
+  // TODO(@tcsnfkx): Validate the indexes of the nodes.
+
   absl::Status names_status = wfa_virtual_people::CheckNodeNames(nodes);
   CHECK(names_status.ok()) << names_status;
 

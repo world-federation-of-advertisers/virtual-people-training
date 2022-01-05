@@ -54,6 +54,11 @@ TEST(CheckNodeNamesTest, DuplicatedName) {
         name: "node1"
       )pb",
       &nodes.emplace_back()));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        name: "node2"
+      )pb",
+      &nodes.emplace_back()));
   EXPECT_THAT(CheckNodeNames(nodes),
               StatusIs(absl::StatusCode::kInvalidArgument,
                        "Duplicated node names: node1"));

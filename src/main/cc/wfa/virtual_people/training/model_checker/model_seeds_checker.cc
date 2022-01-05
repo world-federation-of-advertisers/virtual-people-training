@@ -63,10 +63,10 @@ absl::StatusOr<absl::flat_hash_map<int, int>> GetParentIndexMap(
   return parent_vector_index;
 }
 
-// Add the random seeds in @branch_node to @random_seeds.
-void GetRandomSeedsForBranchNode(
-    const BranchNode& branch_node,
-    absl::flat_hash_set<std::string>& random_seeds) {
+// Get the random seeds in @branch_node.
+absl::flat_hash_set<std::string> GetRandomSeedsForBranchNode(
+    const BranchNode& branch_node) {
+  absl::flat_hash_set<std::string> random_seeds;
   if (branch_node.has_random_seed()) {
     random_seeds.insert(branch_node.random_seed());
   }
@@ -92,34 +92,44 @@ void GetRandomSeedsForBranchNode(
       random_seeds.insert(multiplicity.random_seed());
     }
   }
-}
-
-// Add the random seeds in @population_node to @random_seeds.
-void GetRandomSeedForPopulationNode(
-    const PopulationNode& population_node,
-    absl::flat_hash_set<std::string>& random_seeds) {
-  if (population_node.has_random_seed()) {
-    random_seeds.insert(population_node.random_seed());
-  }
+  return random_seeds;
 }
 
 // Get all the random seeds from the node.
 absl::flat_hash_set<std::string> GetRandomSeeds(const CompiledNode& node) {
   absl::flat_hash_set<std::string> random_seeds;
   if (node.has_branch_node()) {
-    GetRandomSeedsForBranchNode(node.branch_node(), random_seeds);
+    absl::flat_hash_set<std::string> branch_node_seeds =
+        GetRandomSeedsForBranchNode(node.branch_node());
+    random_seeds.insert(branch_node_seeds.begin(), branch_node_seeds.end());
   } else if (node.has_population_node()) {
-    GetRandomSeedForPopulationNode(node.population_node(), random_seeds);
+    const PopulationNode& population_node = node.population_node();
+    if (population_node.has_random_seed()) {
+      random_seeds.insert(population_node.random_seed());
+    }
   }
   return random_seeds;
 }
 
+// Get the random seeds for all nodes, and store the seeds in the same order as
+// the ndoes.
+std::vector<absl::flat_hash_set<std::string>> GetRandomSeedsForAllNodes(
+    const std::vector<CompiledNode>& nodes) {
+  std::vector<absl::flat_hash_set<std::string>> all_seeds;
+  for (const CompiledNode& node : nodes) {
+    all_seeds.emplace_back(GetRandomSeeds(node));
+  }
+  return all_seeds;
+}
+
 absl::Status CheckNodeSeeds(const std::vector<CompiledNode>& nodes) {
   ASSIGN_OR_RETURN(auto parent_vector_index, GetParentIndexMap(nodes));
+  std::vector<absl::flat_hash_set<std::string>> all_seeds =
+      GetRandomSeedsForAllNodes(nodes);
   // To store the indexes of the nodes that has any duplicated random seed.
   std::vector<int> violation_indexes;
   for (int i = 0; i < nodes.size(); ++i) {
-    absl::flat_hash_set<std::string> random_seeds = GetRandomSeeds(nodes[i]);
+    const absl::flat_hash_set<std::string>& random_seeds = all_seeds.at(i);
     // Go through all the ancestors to the root, and check if there is any
     // duplicated random seed in the ancestors.
     int current_index = i;
@@ -131,8 +141,8 @@ absl::Status CheckNodeSeeds(const std::vector<CompiledNode>& nodes) {
       }
       current_index = it->second;
       // Get the random seeds of the current ancestor node.
-      absl::flat_hash_set<std::string> ancestor_random_seeds =
-          GetRandomSeeds(nodes[current_index]);
+      const absl::flat_hash_set<std::string>& ancestor_random_seeds =
+          all_seeds.at(current_index);
       // Check if the random seeds of the node i have any duplicates among the
       // random seeds of the current ancestor node.
       bool has_duplicate = false;

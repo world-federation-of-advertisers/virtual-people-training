@@ -24,8 +24,8 @@ namespace wfa_virtual_people {
 
 // Return error status if there are any duplicated names in @nodes.
 //
-// Any child node should be referenced by index rather than the CompiledNode
-// object.
+// We assume that any child node should be referenced by index rather than the
+// CompiledNode object in @nodes.
 absl::Status CheckNodeNames(const std::vector<CompiledNode>& nodes);
 
 }  // namespace wfa_virtual_people
