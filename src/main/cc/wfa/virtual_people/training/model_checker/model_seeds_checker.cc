@@ -95,24 +95,28 @@ absl::flat_hash_set<std::string> GetRandomSeedsForBranchNode(
   return random_seeds;
 }
 
-// Get all the random seeds from the node.
-absl::flat_hash_set<std::string> GetRandomSeeds(const CompiledNode& node) {
+// Get the random seeds in @population_node.
+absl::flat_hash_set<std::string> GetRandomSeedsForPopulationNode(
+    const PopulationNode& population_node) {
   absl::flat_hash_set<std::string> random_seeds;
-  if (node.has_branch_node()) {
-    absl::flat_hash_set<std::string> branch_node_seeds =
-        GetRandomSeedsForBranchNode(node.branch_node());
-    random_seeds.insert(branch_node_seeds.begin(), branch_node_seeds.end());
-  } else if (node.has_population_node()) {
-    const PopulationNode& population_node = node.population_node();
-    if (population_node.has_random_seed()) {
-      random_seeds.insert(population_node.random_seed());
-    }
+  if (population_node.has_random_seed()) {
+    random_seeds.insert(population_node.random_seed());
   }
   return random_seeds;
 }
 
+// Get all the random seeds from the node.
+absl::flat_hash_set<std::string> GetRandomSeeds(const CompiledNode& node) {
+  if (node.has_branch_node()) {
+    return GetRandomSeedsForBranchNode(node.branch_node());
+  } else if (node.has_population_node()) {
+    return GetRandomSeedsForPopulationNode(node.population_node());
+  }
+  return absl::flat_hash_set<std::string>();
+}
+
 // Get the random seeds for all nodes, and store the seeds in the same order as
-// the ndoes.
+// the nodes.
 std::vector<absl::flat_hash_set<std::string>> GetRandomSeedsForAllNodes(
     const std::vector<CompiledNode>& nodes) {
   std::vector<absl::flat_hash_set<std::string>> all_seeds;
