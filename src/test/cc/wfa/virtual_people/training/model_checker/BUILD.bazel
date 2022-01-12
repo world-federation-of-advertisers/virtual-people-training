@@ -1,0 +1,29 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+package(default_visibility = ["//visibility:private"])
+
+cc_test(
+    name = "model_names_checker_test",
+    srcs = ["model_names_checker_test.cc"],
+    deps = [
+        "//src/main/cc/wfa/virtual_people/training/model_checker:model_names_checker",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+        "@com_google_protobuf//:protobuf",
+        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto",
+        "@wfa_common_cpp//src/main/cc/common_cpp/testing:status",
+    ],
+)
+
+cc_test(
+    name = "model_seeds_checker_test",
+    srcs = ["model_seeds_checker_test.cc"],
+    deps = [
+        "//src/main/cc/wfa/virtual_people/training/model_checker:model_seeds_checker",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+        "@com_google_protobuf//:protobuf",
+        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto",
+        "@wfa_common_cpp//src/main/cc/common_cpp/testing:status",
+    ],
+)

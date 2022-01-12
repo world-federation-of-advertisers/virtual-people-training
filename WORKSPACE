@@ -39,9 +39,9 @@ pip_install(
 # Common-cpp
 http_archive(
     name = "wfa_common_cpp",
-    sha256 = "e8efc0c9f5950aff13a59f21f40ccc31c26fe40c800743f824f92df3a05588b2",
-    strip_prefix = "common-cpp-0.5.0",
-    url = "https://github.com/world-federation-of-advertisers/common-cpp/archive/refs/tags/v0.5.0.tar.gz",
+    sha256 = "a964e147d4516ec40560531ad5fd654bd4aef37fc05c58d44ad1749b2dc466dc",
+    strip_prefix = "common-cpp-0.6.0",
+    url = "https://github.com/world-federation-of-advertisers/common-cpp/archive/refs/tags/v0.6.0.tar.gz",
 )
 
 load("@wfa_common_cpp//build:common_cpp_repositories.bzl", "common_cpp_repositories")
