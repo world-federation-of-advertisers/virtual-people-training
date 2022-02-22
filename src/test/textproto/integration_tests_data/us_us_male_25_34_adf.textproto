@@ -1,0 +1,10 @@
+name: "us_us_male_25_34_full_adf"
+identifier_type_filters { op: TRUE }
+identifier_type_names: "full_adf"
+dirac_mixture {
+  alphas: 0.1
+  alphas: 0.9
+  deltas { coordinates: 1.9 }
+  deltas { coordinates: 0.9 }
+}
+

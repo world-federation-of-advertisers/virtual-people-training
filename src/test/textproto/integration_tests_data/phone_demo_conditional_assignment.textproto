@@ -1,0 +1,32 @@
+condition {
+  op: AND
+  sub_filters {
+    op: HAS
+    name: "labeler_input.profile_info.phone_user_info.user_id"
+  }
+  sub_filters {
+    op: HAS
+    name: "labeler_input.profile_info.phone_user_info.demo.demo_bucket.gender"
+  }
+  sub_filters {
+    op: HAS
+    name: "labeler_input.profile_info.phone_user_info.demo.demo_bucket.age.min_age"
+  }
+  sub_filters {
+    op: HAS
+    name: "labeler_input.profile_info.phone_user_info.demo.demo_bucket.age.max_age"
+  }
+}
+assignments {
+  source_field: "labeler_input.profile_info.phone_user_info.demo.demo_bucket.gender"
+  target_field: "acting_demo.gender"
+}
+assignments {
+  source_field: "labeler_input.profile_info.phone_user_info.demo.demo_bucket.age.min_age"
+  target_field: "acting_demo.age.min_age"
+}
+assignments {
+  source_field: "labeler_input.profile_info.phone_user_info.demo.demo_bucket.age.max_age"
+  target_field: "acting_demo.age.max_age"
+}
+

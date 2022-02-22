@@ -1,0 +1,11 @@
+pass_through_non_matches: True
+nodes {
+  condition {
+    op: HAS
+    name: "labeler_input.profile_info.email_user_info.user_id"
+  }
+  update {
+    acting_demo_id_space: "email"
+  }
+}
+

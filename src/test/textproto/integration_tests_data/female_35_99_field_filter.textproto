@@ -1,0 +1,17 @@
+op: AND
+sub_filters {
+  name: "corrected_demo.age.min_age"
+  op: EQUAL
+  value: "35"
+}
+sub_filters {
+  name: "corrected_demo.age.max_age"
+  op: EQUAL
+  value: "99"
+}
+sub_filters {
+  name: "corrected_demo.gender"
+  op: EQUAL
+  value: "GENDER_FEMALE"
+}
+

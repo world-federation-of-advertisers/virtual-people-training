@@ -1,0 +1,264 @@
+name: "root"
+census { from_file: "census_records.textproto" }
+branches {
+  nodes {
+    name: "cookied"
+    condition { from_file: "cookied_field_filter.textproto" }
+    updates {
+      updates { conditional_merge { from_file: "country_region_code_conditional_merge.textproto" }}
+      updates { conditional_merge { from_file: "phone_acting_demo_id_space_conditional_merge.textproto" }}
+      updates { conditional_assignment { from_file: "phone_demo_conditional_assignment.textproto" }}
+      updates { conditional_merge { from_file: "email_acting_demo_id_space_conditional_merge.textproto" }}
+      updates { conditional_assignment { from_file: "email_demo_conditional_assignment.textproto" }}
+      updates { update_matrix { from_file: "merged_r_update_matrix.textproto" }}
+    }
+    branches {
+      nodes {
+        name: "cookied_pool"
+        condition { from_file: "true_field_filter.textproto" }
+        branches {
+          nodes {
+            name: "cookied_pool-GB"
+            condition { from_file: "person_country_code_gb_field_filter.textproto" }
+            branches {
+              nodes {
+                name: "cookied_pool-GB-GB"
+                condition { from_file: "person_region_code_gb_field_filter.textproto" }
+                branches {
+                  nodes {
+                    name: "cookied_pool-GB-GB-phone"
+                    condition { from_file: "phone_user_field_filter.textproto" }
+                    branches {
+                      nodes {
+                        name: "cookied_pool-GB-GB-phone-Demo Bucket - F18-24"
+                        condition { from_file: "female_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_female_18_24_adf.textproto" }
+                          multipool { from_file: "gb_gb_female_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-phone-Demo Bucket - F25-34"
+                        condition { from_file: "female_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_female_25_34_adf.textproto" }
+                          multipool { from_file: "gb_gb_female_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-phone-Demo Bucket - F35-99"
+                        condition { from_file: "female_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_female_35_99_adf.textproto" }
+                          multipool { from_file: "gb_gb_female_35_99_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-phone-Demo Bucket - M18-24"
+                        condition { from_file: "male_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_male_18_24_adf.textproto" }
+                          multipool { from_file: "gb_gb_male_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-phone-Demo Bucket - M25-34"
+                        condition { from_file: "male_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_male_25_34_adf.textproto" }
+                          multipool { from_file: "gb_gb_male_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-phone-Demo Bucket - M35-99"
+                        condition { from_file: "male_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_male_35_99_adf.textproto" }
+                          multipool { from_file: "gb_gb_male_35_99_multipool.textproto" }
+                        }
+                      }
+                    }
+                  }
+                  nodes {
+                    name: "cookied_pool-GB-GB-email"
+                    condition { from_file: "email_user_field_filter.textproto" }
+                    branches {
+                      nodes {
+                        name: "cookied_pool-GB-GB-email-Demo Bucket - F18-24"
+                        condition { from_file: "female_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_female_18_24_adf.textproto" }
+                          multipool { from_file: "gb_gb_female_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-email-Demo Bucket - F25-34"
+                        condition { from_file: "female_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_female_25_34_adf.textproto" }
+                          multipool { from_file: "gb_gb_female_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-email-Demo Bucket - F35-99"
+                        condition { from_file: "female_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_female_35_99_adf.textproto" }
+                          multipool { from_file: "gb_gb_female_35_99_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-email-Demo Bucket - M18-24"
+                        condition { from_file: "male_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_male_18_24_adf.textproto" }
+                          multipool { from_file: "gb_gb_male_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-email-Demo Bucket - M25-34"
+                        condition { from_file: "male_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_male_25_34_adf.textproto" }
+                          multipool { from_file: "gb_gb_male_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-GB-GB-email-Demo Bucket - M35-99"
+                        condition { from_file: "male_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "gb_gb_male_35_99_adf.textproto" }
+                          multipool { from_file: "gb_gb_male_35_99_multipool.textproto" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          nodes {
+            name: "cookied_pool-US"
+            condition { from_file: "person_country_code_us_field_filter.textproto" }
+            branches {
+              nodes {
+                name: "cookied_pool-US-US"
+                condition { from_file: "person_region_code_us_field_filter.textproto" }
+                branches {
+                  nodes {
+                    name: "cookied_pool-US-US-phone"
+                    condition { from_file: "phone_user_field_filter.textproto" }
+                    branches {
+                      nodes {
+                        name: "cookied_pool-US-US-phone-Demo Bucket - F18-24"
+                        condition { from_file: "female_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_female_18_24_adf.textproto" }
+                          multipool { from_file: "us_us_female_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-phone-Demo Bucket - F25-34"
+                        condition { from_file: "female_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_female_25_34_adf.textproto" }
+                          multipool { from_file: "us_us_female_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-phone-Demo Bucket - F35-99"
+                        condition { from_file: "female_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_female_35_99_adf.textproto" }
+                          multipool { from_file: "us_us_female_35_99_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-phone-Demo Bucket - M18-24"
+                        condition { from_file: "male_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_male_18_24_adf.textproto" }
+                          multipool { from_file: "us_us_male_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-phone-Demo Bucket - M25-34"
+                        condition { from_file: "male_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_male_25_34_adf.textproto" }
+                          multipool { from_file: "us_us_male_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-phone-Demo Bucket - M35-99"
+                        condition { from_file: "male_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_male_35_99_adf.textproto" }
+                          multipool { from_file: "us_us_male_35_99_multipool.textproto" }
+                        }
+                      }
+                    }
+                  }
+                  nodes {
+                    name: "cookied_pool-US-US-email"
+                    condition { from_file: "email_user_field_filter.textproto" }
+                    branches {
+                      nodes {
+                        name: "cookied_pool-US-US-email-Demo Bucket - F18-24"
+                        condition { from_file: "female_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_female_18_24_adf.textproto" }
+                          multipool { from_file: "us_us_female_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-email-Demo Bucket - F25-34"
+                        condition { from_file: "female_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_female_25_34_adf.textproto" }
+                          multipool { from_file: "us_us_female_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-email-Demo Bucket - F35-99"
+                        condition { from_file: "female_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_female_35_99_adf.textproto" }
+                          multipool { from_file: "us_us_female_35_99_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-email-Demo Bucket - M18-24"
+                        condition { from_file: "male_18_24_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_male_18_24_adf.textproto" }
+                          multipool { from_file: "us_us_male_18_24_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-email-Demo Bucket - M25-34"
+                        condition { from_file: "male_25_34_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_male_25_34_adf.textproto" }
+                          multipool { from_file: "us_us_male_25_34_multipool.textproto" }
+                        }
+                      }
+                      nodes {
+                        name: "cookied_pool-US-US-email-Demo Bucket - M35-99"
+                        condition { from_file: "male_35_99_field_filter.textproto" }
+                        population_pool_config {
+                          adf { from_file: "us_us_male_35_99_adf.textproto" }
+                          multipool { from_file: "us_us_male_35_99_multipool.textproto" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
