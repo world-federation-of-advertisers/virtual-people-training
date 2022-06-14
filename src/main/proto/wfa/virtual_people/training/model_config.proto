@@ -201,7 +201,6 @@ message ActivityDensityFunctionSpecification {
 
 // PopulationPoolConfig is used to build a subtree for population pools
 // under the current node.
-// TODO: optional
 message PopulationPoolConfig {
   ActivityDensityFunctionSpecification adf = 1;
   MultipoolSpecification multipool = 2;
