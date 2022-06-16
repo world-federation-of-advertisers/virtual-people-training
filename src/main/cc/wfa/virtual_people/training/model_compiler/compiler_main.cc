@@ -34,6 +34,8 @@
 #include "glog/logging.h"
 #include "wfa/virtual_people/common/model.pb.h"
 #include "wfa/virtual_people/training/model_compiler/compiler.h"
+#include "wfa/virtual_people/training/model_compiler/comprehension/comprehension_method.h"
+#include "wfa/virtual_people/training/model_compiler/comprehension/contextual_boolean_expression.h"
 #include "wfa/virtual_people/training/model_config.pb.h"
 
 ABSL_FLAG(std::string, input_path, "",
@@ -54,6 +56,13 @@ int main(int argc, char** argv) {
   wfa_virtual_people::ModelNodeConfig config;
   absl::Status read_status = wfa::ReadTextProtoFile(input_path, config);
   CHECK(read_status.ok()) << read_status;
+
+  wfa_virtual_people::ContextMap context_map;
+  absl::StatusOr<wfa_virtual_people::ModelNodeConfig> comprehended =
+      wfa_virtual_people::ComprehensionMethod::ComprehendAndCleanModel(
+          config, context_map);
+  CHECK(comprehended.status().ok()) << comprehended.status();
+  config = *comprehended;
 
   absl::StatusOr<wfa_virtual_people::CompiledNode> model =
       wfa_virtual_people::CompileModel(config);

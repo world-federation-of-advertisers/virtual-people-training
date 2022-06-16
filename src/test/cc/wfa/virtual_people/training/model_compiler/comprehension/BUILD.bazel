@@ -34,3 +34,21 @@ cc_test(
         "@wfa_common_cpp//src/main/cc/common_cpp/testing:status",
     ],
 )
+
+cc_test(
+    name = "comprehension_method_test",
+    srcs = ["comprehension_method_test.cc"],
+    deps = [
+        "//src/main/cc/wfa/virtual_people/training/model_compiler/comprehension:comprehension_lib",
+        "//src/main/cc/wfa/virtual_people/training/model_compiler/comprehension:contextual_boolean_expression",
+        "//src/main/cc/wfa/virtual_people/training/model_compiler/comprehension:spec_util",
+        "//src/main/proto/wfa/virtual_people/training:comprehend_cc_proto",
+        "//src/main/proto/wfa/virtual_people/training:model_config_cc_proto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_googletest//:gtest_main",
+        "@com_google_protobuf//:protobuf",
+        "@wfa_common_cpp//src/main/cc/common_cpp/testing:common_matchers",
+        "@wfa_common_cpp//src/main/cc/common_cpp/testing:status",
+    ],
+)
