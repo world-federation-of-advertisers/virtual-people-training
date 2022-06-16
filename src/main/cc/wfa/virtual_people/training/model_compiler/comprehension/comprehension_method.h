@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_COMPREHENSION_METHOD_H_
-#define SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_COMPREHENSION_METHOD_H_
+#ifndef SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_COMPREHENSION_COMPREHENSION_METHOD_H_
+#define SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_COMPREHENSION_COMPREHENSION_METHOD_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "absl/status/statusor.h"
 #include "wfa/virtual_people/training/comprehend.pb.h"
@@ -52,4 +52,4 @@ class ComprehensionMethod {
 
 }  // namespace wfa_virtual_people
 
-#endif  // SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_COMPREHENSION_METHOD_H_
+#endif  // SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_COMPREHENSION_COMPREHENSION_METHOD_H_
