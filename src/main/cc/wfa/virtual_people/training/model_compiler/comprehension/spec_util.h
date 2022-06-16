@@ -32,8 +32,12 @@ namespace wfa_virtual_people {
 typedef absl::flat_hash_map<std::string, std::vector<std::string>>
     StringToStringsMap;
 
+// Reads a list of strings as specified in @spec.
+// Returns error if @spec is invalid, or encounter any error during read.
 absl::StatusOr<std::vector<std::string>> ReadListFromSpec(const ListSpec& spec);
 
+// Read a string-to-strings map as specified in @spec.
+// Returns error if @spec is invalid, or encounter any error during read.
 absl::StatusOr<StringToStringsMap> ReadMapFromSpec(const MapSpec& spec);
 
 }  // namespace wfa_virtual_people

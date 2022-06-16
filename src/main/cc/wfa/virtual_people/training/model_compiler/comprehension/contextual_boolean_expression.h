@@ -32,6 +32,28 @@ namespace wfa_virtual_people {
 typedef absl::flat_hash_map<std::string, std::string> ContextMap;
 
 // The baseclass for boolean expression computable from context.
+//
+// The following expressions are supported:
+// - Equality: returns true if the value of two keys are equal.
+// - AndExpression: returns true if all expressions in a list are true. Returns
+//   true for empty list.
+// - OrExpression: returns true if any expression in a list is true. Returns
+//   false for empty list.
+// - NotExpression: return negation of an expression.
+// Returns error if any key in the expression is not found in the context map.
+// See comprehend.proto for formal definition.
+//
+// Examples:
+// Context map:
+//   "a" -> "v1"
+//   "b" -> "v1"
+//   "c" -> "v2"
+//   "d" -> "v3"
+// exp1: Equality { left_key: "a", right_key: "b" } = true
+// exp2: Equality { left_key: "c", right_key: "d" } = false
+// exp3: AndExpression(exp1, exp2) = false
+// exp4: OrExpression(exp1, exp2) = true
+// exp5: NotExpression(exp3) = true
 class ContextualBooleanExpression {
  public:
   // Always use ContextualBooleanExpression::Build to get a
