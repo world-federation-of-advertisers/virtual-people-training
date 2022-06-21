@@ -1,0 +1,77 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = [
+    "//src/main/cc/wfa/virtual_people/training/model_compiler:__subpackages__",
+    "//src/test/cc/wfa/virtual_people/training/model_compiler:__subpackages__",
+])
+
+_INCLUDE_PREFIX = "/src/main/cc"
+
+cc_library(
+    name = "contextual_boolean_expression",
+    srcs = [
+        "contextual_boolean_expression.cc",
+    ],
+    hdrs = [
+        "contextual_boolean_expression.h",
+    ],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "//src/main/proto/wfa/virtual_people/training:comprehend_cc_proto",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+        "@com_google_protobuf//:protobuf",
+        "@wfa_common_cpp//src/main/cc/common_cpp/macros",
+    ],
+)
+
+cc_library(
+    name = "spec_util",
+    srcs = [
+        "spec_util.cc",
+    ],
+    hdrs = [
+        "spec_util.h",
+    ],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "//src/main/proto/wfa/virtual_people/training:comprehend_cc_proto",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+        "@com_google_protobuf//:protobuf",
+        "@com_google_riegeli//riegeli/bytes:string_reader",
+        "@com_google_riegeli//riegeli/csv:csv_reader",
+        "@wfa_common_cpp//src/main/cc/common_cpp/macros",
+    ],
+)
+
+cc_library(
+    name = "comprehension_lib",
+    srcs = [
+        "comprehension_method.cc",
+    ],
+    hdrs = [
+        "comprehension_method.h",
+    ],
+    strip_include_prefix = _INCLUDE_PREFIX,
+    deps = [
+        "contextual_boolean_expression",
+        "spec_util",
+        "//src/main/proto/wfa/virtual_people/training:comprehend_cc_proto",
+        "//src/main/proto/wfa/virtual_people/training:model_config_cc_proto",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+        "@com_google_protobuf//:protobuf",
+        "@com_google_riegeli//riegeli/bytes:string_reader",
+        "@com_google_riegeli//riegeli/csv:csv_reader",
+        "@wfa_common_cpp//src/main/cc/common_cpp/macros",
+    ],
+)
