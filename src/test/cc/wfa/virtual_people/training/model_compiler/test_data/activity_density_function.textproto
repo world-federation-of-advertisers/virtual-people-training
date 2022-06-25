@@ -6,6 +6,6 @@ identifier_type_names: "TestIdType"
 dirac_mixture {
   alphas: 0
   deltas {
-    coordinates: 0
+    activities: 0
   }
 }

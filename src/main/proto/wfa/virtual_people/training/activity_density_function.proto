@@ -24,7 +24,7 @@ import "wfa/virtual_people/common/field_filter.proto";
 // Dirac Delta function.
 message DiracDelta {
   // Location of the delta.
-  repeated double coordinates = 1;
+  repeated double activities = 1;
 }
 
 // Dirac Mixture: a linear sum of Dirac Delta functions.

@@ -26,8 +26,8 @@ population_pool_config {
       dirac_mixture {
         alphas: 0.3
         alphas: 0.6
-        deltas { coordinates: 1.9 }
-        deltas { coordinates: 0.4 }
+        deltas { activities: 1.9 }
+        deltas { activities: 0.4 }
       }
     }
   }
