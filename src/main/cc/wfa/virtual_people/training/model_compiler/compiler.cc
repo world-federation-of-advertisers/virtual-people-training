@@ -174,9 +174,9 @@ absl::Status ValidateAdf(const ActivityDensityFunction& adf) {
         "The count of Alphas and Deltas mut be the same in Dirac mixture.");
   }
   for (const DiracDelta& delta : adf.dirac_mixture().deltas()) {
-    if (delta.coordinates_size() != adf.identifier_type_filters_size()) {
+    if (delta.activities_size() != adf.identifier_type_filters_size()) {
       return absl::InvalidArgumentError(
-          "The count of coordinates in Delta must be the same as the count of "
+          "The count of activities in Delta must be the same as the count of "
           "identifier_type_filters.");
     }
   }
@@ -384,7 +384,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
         adf.dirac_mixture().alphas_size(), 0.0);
     for (int j = 0; j < adf.dirac_mixture().alphas_size(); ++j) {
       original_probabilities[j] = adf.dirac_mixture().alphas(j) *
-                                  adf.dirac_mixture().deltas(j).coordinates(i);
+                                  adf.dirac_mixture().deltas(j).activities(i);
     }
     RETURN_IF_ERROR(NormalizeIfSumCloseToOne(0.0001, original_probabilities));
     std::vector<double> probabilities_by_delta =

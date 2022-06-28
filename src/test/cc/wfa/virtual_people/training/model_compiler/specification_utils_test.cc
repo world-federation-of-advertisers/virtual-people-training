@@ -676,7 +676,7 @@ TEST(CompileActivityDensityFunctionTest, FromVerbatim) {
           identifier_type_names: "TestIdType"
           dirac_mixture {
             alphas: 0
-            deltas { coordinates: 0 }
+            deltas { activities: 0 }
           }
         }
       )pb",
@@ -689,7 +689,7 @@ TEST(CompileActivityDensityFunctionTest, FromVerbatim) {
         identifier_type_names: "TestIdType"
         dirac_mixture {
           alphas: 0
-          deltas { coordinates: 0 }
+          deltas { activities: 0 }
         }
       )pb",
       &expected));
@@ -710,7 +710,7 @@ TEST(CompileActivityDensityFunctionTest, FromFile) {
         identifier_type_names: "TestIdType"
         dirac_mixture {
           alphas: 0
-          deltas { coordinates: 0 }
+          deltas { activities: 0 }
         }
       )pb",
       &expected));
