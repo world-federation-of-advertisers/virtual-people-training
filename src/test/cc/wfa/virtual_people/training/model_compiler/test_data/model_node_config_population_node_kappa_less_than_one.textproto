@@ -27,9 +27,9 @@ population_pool_config {
         alphas: 0.4
         alphas: 0.6
         alphas: 0
-        deltas { coordinates: 1.9 }
-        deltas { coordinates: 0.4 }
-        deltas { coordinates: 1 }
+        deltas { activities: 1.9 }
+        deltas { activities: 0.4 }
+        deltas { activities: 1 }
       }
     }
   }

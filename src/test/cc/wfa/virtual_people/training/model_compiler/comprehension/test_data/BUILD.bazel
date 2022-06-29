@@ -1,0 +1,12 @@
+package(default_visibility = [
+    "//src/test/cc/wfa/virtual_people/training/model_compiler/comprehension:__subpackages__",
+])
+
+exports_files(
+    glob(["*.csv"]),
+)
+
+filegroup(
+    name = "spec_util_test_data",
+    srcs = glob(["*.csv"]),
+)
