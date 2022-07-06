@@ -24,19 +24,15 @@
 #include "gtest/gtest.h"
 #include "wfa/virtual_people/training/model_config.pb.h"
 
-using namespace ::google::protobuf;
-using namespace ::google::protobuf::io;
-using namespace ::google::protobuf::util;
-
 namespace wfa_virtual_people {
 namespace {
 
-void ReadTextProtoFile(std::string path, Message& message) {
+void ReadTextProtoFile(std::string path, google::protobuf::Message& message) {
   CHECK(!path.empty()) << "No path set";
   int fd = open(path.c_str(), O_RDONLY);
   CHECK(fd > 0) << "Unable to open file: " << path;
-  FileInputStream fstream(fd);
-  CHECK(TextFormat::Parse(&fstream, &message))
+  google::protobuf::io::FileInputStream fstream(fd);
+  CHECK(google::protobuf::TextFormat::Parse(&fstream, &message))
       << "Unable to parse textproto file: " << path;
 }
 
@@ -47,7 +43,7 @@ bool ProtoEquals(std::string expectedPath, std::string outputPath) {
   CompiledNode output;
   ReadTextProtoFile(outputPath, output);
 
-  MessageDifferencer diff;
+  google::protobuf::util::MessageDifferencer diff;
   return diff.Equals(expected, output);
 }
 
