@@ -81,3 +81,22 @@ cc_test(
         "@wfa_common_cpp//src/main/cc/common_cpp/testing:status",
     ],
 )
+
+cc_test(
+    name = "integration_test",
+    srcs = ["integration_test.cc"],
+    data = [
+        "//src/main/cc/wfa/virtual_people/training/model_compiler:compiler_main",
+        "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:test_data",
+    ],
+    deps = [
+        "//src/test/proto/wfa/virtual_people/training:config_cc_proto",
+        "//src/main/proto/wfa/virtual_people/training:model_config_cc_proto",
+        "@bazel_tools//tools/cpp/runfiles",
+        "@com_google_absl//absl/status",
+        "@com_github_google_glog//:glog",
+        "@com_google_googletest//:gtest_main",
+        "@com_google_protobuf//:protobuf",
+        "@wfa_common_cpp//src/main/cc/common_cpp/protobuf_util:textproto_io",
+    ],
+)
