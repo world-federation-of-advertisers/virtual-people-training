@@ -406,24 +406,16 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
       delta_branch->set_chance(probabilities_by_delta[j]);
       CompiledNode* delta_node = delta_branch->mutable_node();
       delta_node->set_name(absl::StrCat(identifier_node->name(), "_delta_", j));
-      delta_node->mutable_population_node()->mutable_pools()->Assign(
-          delta_pools[j].begin(), delta_pools[j].end());
-    }
-
-    if (delta_pools.back().empty()) {
-      // Build empty population pool for the case that kappa < 1.
-      CompiledNode* last_delta_node =
-          identifier_node->mutable_branch_node()
-              ->mutable_branches(
-                  identifier_node->branch_node().branches_size() - 1)
-              ->mutable_node();
-      if (last_delta_node->population_node().pools_size() != 0) {
-        return absl::InternalError("Last delta should be empty.");
+      if (delta_pools[j].empty()) {
+        // Build empty population pool.
+        PopulationNode::VirtualPersonPool* empty_pool =
+            delta_node->mutable_population_node()->add_pools();
+        empty_pool->set_population_offset(0);
+        empty_pool->set_total_population(0);
+      } else {
+        delta_node->mutable_population_node()->mutable_pools()->Assign(
+            delta_pools[j].begin(), delta_pools[j].end());
       }
-      PopulationNode::VirtualPersonPool* empty_pool =
-          last_delta_node->mutable_population_node()->add_pools();
-      empty_pool->set_population_offset(0);
-      empty_pool->set_total_population(0);
     }
   }
   return absl::OkStatus();
