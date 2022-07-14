@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <fcntl.h>
+
 #include <string>
 #include <tuple>
 #include <vector>
@@ -35,11 +37,11 @@ namespace {
 std::vector<std::tuple<std::string, std::string, std::string>> ParseConfig(std::string path) {
     IntegrationTestList config;
 
-    absl::Status readConfigStatus = ReadTextProtoFile(path, config); // can do further error checking at some point with absl::Status
+    absl::Status readConfigStatus = ReadTextProtoFile(path, config);
     
     std::vector<std::tuple<std::string, std::string, std::string>> targets;
-    std::string name, output, golden, error, rPath, execute;
-    std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest(&error));
+    std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest());
+    std::string name, output, golden, rPath, execute;
 
     for (int testIndex = 0; testIndex < config.tests_size(); testIndex++) {
         IntegrationTest it = config.tests().at(testIndex);
@@ -50,12 +52,16 @@ std::vector<std::tuple<std::string, std::string, std::string>> ParseConfig(std::
             execute = rPath;
             for (int binaryParameterIndex = 0; binaryParameterIndex < tc.binary_parameters_size(); binaryParameterIndex++) {
                 BinaryParameter bp = tc.binary_parameters().at(binaryParameterIndex);
-                execute += " --" + bp.name() + "=" + bp.value(); 
-                if (!bp.golden().empty()) { // check if file exists to determine mode
+                if (!bp.golden().empty() && open(bp.golden().data(), O_RDONLY) != -1) { 
                     output = bp.value();
                     golden = bp.golden();
                     targets.push_back({name, output, golden});
-                }
+                } else execute += " --" + bp.name() + "=" + bp.golden();
+                /*
+                 * For this line ^ need to make it so when executed via system it actually generates the file.
+                 * The issue is that because the test is running via Bazel, Bazel doesn't let you write to your workspace.
+                 */
+                if (execute == rPath) execute += " --" + bp.name() + "=" + bp.value();
             }
             std::system(execute.c_str()); 
         }
