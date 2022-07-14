@@ -15,7 +15,6 @@
 #include <fcntl.h>
 
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include "absl/status/status.h"
@@ -35,13 +34,12 @@ namespace wfa_virtual_people {
 namespace {
 
 struct Targets {
-    std::string name;
-    std::string output;
-    std::string golden;
+  std::string name;
+  std::string output;
+  std::string golden;
 };
 
-std::vector<Targets> ParseConfig(
-    std::string path) {
+std::vector<Targets> ParseConfig(std::string path) {
   IntegrationTestList config;
 
   absl::Status readConfigStatus = ReadTextProtoFile(path, config);
@@ -94,12 +92,10 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
   Targets targets(GetParam());
 
   CompiledNode output;
-  absl::Status outputStatus =
-      ReadTextProtoFile(targets.output, output);
+  absl::Status outputStatus = ReadTextProtoFile(targets.output, output);
 
   CompiledNode golden;
-  absl::Status goldenStatus =
-      ReadTextProtoFile(targets.golden, golden);
+  absl::Status goldenStatus = ReadTextProtoFile(targets.golden, golden);
 
   ASSERT_TRUE(diff.Equals(output, golden));
 }
