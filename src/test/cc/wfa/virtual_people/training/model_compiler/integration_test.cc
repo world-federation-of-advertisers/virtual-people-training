@@ -34,13 +34,19 @@ using ::wfa::ReadTextProtoFile;
 namespace wfa_virtual_people {
 namespace {
 
-std::vector<std::tuple<std::string, std::string, std::string>> ParseConfig(
+struct Targets {
+    std::string name;
+    std::string output;
+    std::string golden;
+};
+
+std::vector<Targets> ParseConfig(
     std::string path) {
   IntegrationTestList config;
 
   absl::Status readConfigStatus = ReadTextProtoFile(path, config);
 
-  std::vector<std::tuple<std::string, std::string, std::string>> targets;
+  std::vector<Targets> targets;
   std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest());
   std::string name, output, golden, rPath, execute;
 
@@ -79,22 +85,21 @@ std::vector<std::tuple<std::string, std::string, std::string>> ParseConfig(
 }
 
 class IntegrationTestParamaterizedFixture
-    : public ::testing::TestWithParam<
-          std::tuple<std::string, std::string, std::string>> {
+    : public ::testing::TestWithParam<Targets> {
  protected:
   google::protobuf::util::MessageDifferencer diff;
 };
 
 TEST_P(IntegrationTestParamaterizedFixture, Test) {
-  std::tuple<std::string, std::string, std::string> targetPair(GetParam());
+  Targets targets(GetParam());
 
   CompiledNode output;
   absl::Status outputStatus =
-      ReadTextProtoFile(std::get<1>(targetPair), output);
+      ReadTextProtoFile(targets.output, output);
 
   CompiledNode golden;
   absl::Status goldenStatus =
-      ReadTextProtoFile(std::get<2>(targetPair), golden);
+      ReadTextProtoFile(targets.golden, golden);
 
   ASSERT_TRUE(diff.Equals(output, golden));
 }
@@ -106,7 +111,7 @@ INSTANTIATE_TEST_SUITE_P(
                     "test_data/config.textproto")),
     [](const ::testing::TestParamInfo<
         IntegrationTestParamaterizedFixture::ParamType>& info) {
-      std::string name = std::get<0>(info.param);
+      std::string name = info.param.name;
       return name;
     });
 
