@@ -39,6 +39,11 @@ struct Targets {
   std::string golden;
 };
 
+// Returns a list of Targets parsed from the input config.
+// Additionally, locates the runfiles path for the given binary and executes the
+// binary with it's given binary_parameters from the input config. Depending on
+// if the golden file exists or not, will generate a golden file or append
+// to targets.
 std::vector<Targets> ParseConfig(std::string path) {
   IntegrationTestList config;
 
@@ -70,9 +75,10 @@ std::vector<Targets> ParseConfig(std::string path) {
           execute += bp.golden();
         }
         /*
-         * For this section ^ need to make it so when executed via system it
-         * actually generates the file. The issue is that because the test is
-         * running via Bazel, Bazel doesn't let you write to your workspace.
+         * TODO(wastadtlander): For this section ^^^ need to make it so when
+         * executed via system it actually generates the file. The issue is that
+         * because the test is running via Bazel, Bazel doesn't let you write to
+         * your workspace.
          */
       }
       std::system(execute.c_str());
