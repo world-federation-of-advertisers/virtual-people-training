@@ -41,7 +41,7 @@ struct Targets {
 
 // Returns a list of Targets parsed from the input config.
 // Additionally, locates the runfiles path for the given binary and executes the
-// binary with it's given binary_parameters from the input config. Depending on
+// binary with its given binary_parameters from the input config. Depending on
 // if the golden file exists or not, will generate a golden file or append
 // to targets.
 std::vector<Targets> ParseConfig(std::string path) {
