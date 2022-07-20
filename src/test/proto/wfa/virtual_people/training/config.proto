@@ -22,6 +22,10 @@ message BinaryParameter {
   string value = 2;
 
   optional string golden = 3;
+
+  optional string proto = 4;
+
+  optional string proto_type = 5;
 }
 
 message TestCase {

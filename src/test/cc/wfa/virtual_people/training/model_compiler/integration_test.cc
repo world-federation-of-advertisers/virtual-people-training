@@ -25,7 +25,11 @@
 #include "gtest/gtest.h"
 #include "tools/cpp/runfiles/runfiles.h"
 #include "wfa/virtual_people/training/config.pb.h"
-#include "wfa/virtual_people/training/model_config.pb.h"  // temp for testing
+#include "google/protobuf/dynamic_message.h"
+#include "google/protobuf/io/tokenizer.h"
+#include "google/protobuf/io/zero_copy_stream_impl.h"
+#include "google/protobuf/compiler/parser.h"
+// #include "wfa/virtual_people/training/model_config.pb.h"
 
 using bazel::tools::cpp::runfiles::Runfiles;
 using ::wfa::ReadTextProtoFile;
@@ -37,6 +41,8 @@ struct Targets {
   std::string name;
   std::string output;
   std::string golden;
+  std::string proto;
+  std::string protoType;
 };
 
 // Returns a list of Targets parsed from the input config.
@@ -51,7 +57,7 @@ std::vector<Targets> ParseConfig(std::string path) {
 
   std::vector<Targets> targets;
   std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest());
-  std::string name, output, golden, rPath, execute;
+  std::string name, output, golden, proto, protoType, rPath, execute;
 
   for (int testIndex = 0; testIndex < config.tests_size(); testIndex++) {
     IntegrationTest it = config.tests().at(testIndex);
@@ -69,7 +75,9 @@ std::vector<Targets> ParseConfig(std::string path) {
         if (!bp.golden().empty() && open(bp.golden().data(), O_RDONLY) != -1) {
           output = bp.value();
           golden = bp.golden();
-          targets.push_back({name, output, golden});
+          proto = bp.proto();
+          protoType = bp.proto_type();
+          targets.push_back({name, output, golden, proto, protoType});
         } else if (!bp.golden().empty()) {
           execute.erase(execute.find(bp.value()));
           execute += bp.golden();
@@ -97,13 +105,31 @@ class IntegrationTestParamaterizedFixture
 TEST_P(IntegrationTestParamaterizedFixture, Test) {
   Targets targets(GetParam());
 
-  CompiledNode output;
-  absl::Status outputStatus = ReadTextProtoFile(targets.output, output);
+  int fd = open(targets.proto.data(), O_RDONLY); // this line currently returns a -1
+  google::protobuf::io::FileInputStream fileInputStream(fd);
+  google::protobuf::io::Tokenizer tokenizer(&fileInputStream, NULL);
 
-  CompiledNode golden;
-  absl::Status goldenStatus = ReadTextProtoFile(targets.golden, golden);
+  google::protobuf::FileDescriptorProto fileDescriptorProto;
+  google::protobuf::compiler::Parser parser;
+  parser.Parse(&tokenizer, &fileDescriptorProto);
 
-  ASSERT_TRUE(diff.Equals(output, golden));
+  google::protobuf::DescriptorPool descriptorPool;
+  const google::protobuf::FileDescriptor * fileDescriptor = descriptorPool.BuildFile(fileDescriptorProto);
+
+  google::protobuf::DynamicMessageFactory dynamicMessageFactory;
+  const google::protobuf::Message * immutableMessage;
+  immutableMessage = dynamicMessageFactory.GetPrototype(fileDescriptor->FindMessageTypeByName(targets.protoType));
+
+  google::protobuf::Message * output = immutableMessage->New();
+  google::protobuf::Message * input = immutableMessage->New();
+
+  // CompiledNode output;
+  // absl::Status outputStatus = ReadTextProtoFile(targets.output, output);
+
+  // CompiledNode golden;
+  // absl::Status goldenStatus = ReadTextProtoFile(targets.golden, golden);
+
+  // ASSERT_TRUE(diff.Equals(output, golden));
 }
 
 INSTANTIATE_TEST_SUITE_P(

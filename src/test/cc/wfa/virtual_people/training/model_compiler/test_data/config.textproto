@@ -11,6 +11,8 @@ tests {
             name: "output_path"
             value: "src/test/cc/wfa/virtual_people/training/model_compiler/compiled_node_for_population_node.textproto"
             golden: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/compiled_node_for_population_node.textproto"
+            proto: "src/main/proto/wfa/virtual_people/common/model.proto"
+            proto_type: "CompiledNode"
         }
     }
     test_cases {
@@ -23,6 +25,8 @@ tests {
             name: "output_path"
             value: "src/test/cc/wfa/virtual_people/training/model_compiler/compiled_node_for_population_node_redistribute_probabilities_for_empty_pools.textproto"
             golden: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/compiled_node_for_population_node_redistribute_probabilities_for_empty_pools.textproto"
+            proto: "src/main/proto/wfa/virtual_people/common/model.proto"
+            proto_type: "CompiledNode"
         }
     }
     test_cases {
@@ -35,6 +39,8 @@ tests {
             name: "output_path"
             value: "src/test/cc/wfa/virtual_people/training/model_compiler/compiled_node_for_population_node_kappa_less_than_one.textproto"
             golden: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/compiled_node_for_population_node_kappa_less_than_one.textproto"
+            proto: "src/main/proto/wfa/virtual_people/common/model.proto"
+            proto_type: "CompiledNode"
         }
     }
     test_cases {
@@ -47,6 +53,8 @@ tests {
             name: "output_path"
             value: "src/test/cc/wfa/virtual_people/training/model_compiler/compiled_node_for_population_node_discretization.textproto"
             golden: "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/compiled_node_for_population_node_discretization.textproto"
+            proto: "src/main/proto/wfa/virtual_people/common/model.proto"
+            proto_type: "CompiledNode"
         }
     }
 }
