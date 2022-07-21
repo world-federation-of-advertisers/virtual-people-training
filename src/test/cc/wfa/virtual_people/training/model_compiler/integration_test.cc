@@ -56,6 +56,8 @@ std::vector<Targets> ParseConfig(std::string path) {
 
   absl::Status readConfigStatus = ReadTextProtoFile(path, config);
 
+  CHECK(readConfigStatus == absl::OkStatus()) << "Read Config Status: " << readConfigStatus;
+
   std::vector<Targets> targets;
   std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest());
   std::string name, output, golden, proto, protoType, rPath, execute;
@@ -132,15 +134,17 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
       fileDescriptor->FindMessageTypeByName(targets.protoType));
 
   google::protobuf::Message* output = immutableMessage->New();
-  google::protobuf::Message* input = immutableMessage->New();
+  google::protobuf::Message* golden = immutableMessage->New();
 
-  // CompiledNode output;
-  // absl::Status outputStatus = ReadTextProtoFile(targets.output, output);
+  absl::Status outputStatus = ReadTextProtoFile(targets.output, *output);
 
-  // CompiledNode golden;
-  // absl::Status goldenStatus = ReadTextProtoFile(targets.golden, golden);
+  CHECK(outputStatus == absl::OkStatus()) << "Output Status: " << outputStatus;
 
-  // ASSERT_TRUE(messageDifferencer.Equals(output, golden));
+  absl::Status goldenStatus = ReadTextProtoFile(targets.golden, *golden);
+
+  CHECK(goldenStatus == absl::OkStatus()) << "Golden Status: " << goldenStatus;
+
+  ASSERT_TRUE(messageDifferencer.Equals(*output, *golden));
 }
 
 // Instantiates all test cases from the input config and assigns each one a
