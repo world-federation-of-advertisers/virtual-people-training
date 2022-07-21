@@ -97,6 +97,7 @@ std::vector<Targets> ParseConfig(std::string path) {
   return targets;
 }
 
+// Declares classes and variables used in the parameterized TEST_P.
 class IntegrationTestParamaterizedFixture
     : public ::testing::TestWithParam<Targets> {
  protected:
@@ -109,6 +110,8 @@ class IntegrationTestParamaterizedFixture
   int fd;
 };
 
+// Parses proto type to compare from input config and compares output textproto
+// against golden textproto.
 TEST_P(IntegrationTestParamaterizedFixture, Test) {
   Targets targets(GetParam());
 
@@ -140,6 +143,8 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
   // ASSERT_TRUE(messageDifferencer.Equals(output, golden));
 }
 
+// Instantiates all test cases from the input config and assigns each one a
+// name.
 INSTANTIATE_TEST_SUITE_P(
     IntegrationTest, IntegrationTestParamaterizedFixture,
     ::testing::ValuesIn(
