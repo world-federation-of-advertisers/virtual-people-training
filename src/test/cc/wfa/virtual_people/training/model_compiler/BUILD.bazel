@@ -88,7 +88,7 @@ cc_test(
     data = [
         "//src/main/cc/wfa/virtual_people/training/model_compiler:compiler_main",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data",
-        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_cc_proto"
+        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_proto",
     ],
     deps = [
         # "//src/main/proto/wfa/virtual_people/training:model_config_cc_proto",

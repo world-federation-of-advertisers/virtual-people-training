@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <errno.h>
 #include <fcntl.h>
 
 #include <string>
@@ -20,15 +21,15 @@
 #include "absl/status/status.h"
 #include "common_cpp/protobuf_util/textproto_io.h"
 #include "glog/logging.h"
+#include "google/protobuf/compiler/parser.h"
+#include "google/protobuf/dynamic_message.h"
+#include "google/protobuf/io/tokenizer.h"
+#include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "google/protobuf/text_format.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 #include "tools/cpp/runfiles/runfiles.h"
 #include "wfa/virtual_people/training/config.pb.h"
-#include "google/protobuf/dynamic_message.h"
-#include "google/protobuf/io/tokenizer.h"
-#include "google/protobuf/io/zero_copy_stream_impl.h"
-#include "google/protobuf/compiler/parser.h"
 // #include "wfa/virtual_people/training/model_config.pb.h"
 
 using bazel::tools::cpp::runfiles::Runfiles;
@@ -99,29 +100,36 @@ std::vector<Targets> ParseConfig(std::string path) {
 class IntegrationTestParamaterizedFixture
     : public ::testing::TestWithParam<Targets> {
  protected:
-  google::protobuf::util::MessageDifferencer diff;
+  google::protobuf::util::MessageDifferencer messageDifferencer;
+  google::protobuf::FileDescriptorProto fileDescriptorProto;
+  google::protobuf::compiler::Parser parser;
+  google::protobuf::DescriptorPool descriptorPool;
+  google::protobuf::DynamicMessageFactory dynamicMessageFactory;
+  const google::protobuf::Message* immutableMessage;
+  int fd;
 };
 
 TEST_P(IntegrationTestParamaterizedFixture, Test) {
   Targets targets(GetParam());
 
-  int fd = open(targets.proto.data(), O_RDONLY); // this line currently returns a -1
+  fd = open(targets.proto.data(), O_RDONLY);
+
+  CHECK(errno == 0) << "Errno: " << errno;
+
   google::protobuf::io::FileInputStream fileInputStream(fd);
+
+  CHECK(fileInputStream.GetErrno() == 0)
+      << "Errno: " << fileInputStream.GetErrno();
+
   google::protobuf::io::Tokenizer tokenizer(&fileInputStream, NULL);
-
-  google::protobuf::FileDescriptorProto fileDescriptorProto;
-  google::protobuf::compiler::Parser parser;
   parser.Parse(&tokenizer, &fileDescriptorProto);
+  const google::protobuf::FileDescriptor* fileDescriptor =
+      descriptorPool.BuildFile(fileDescriptorProto);
+  immutableMessage = dynamicMessageFactory.GetPrototype(
+      fileDescriptor->FindMessageTypeByName(targets.protoType));
 
-  google::protobuf::DescriptorPool descriptorPool;
-  const google::protobuf::FileDescriptor * fileDescriptor = descriptorPool.BuildFile(fileDescriptorProto);
-
-  google::protobuf::DynamicMessageFactory dynamicMessageFactory;
-  const google::protobuf::Message * immutableMessage;
-  immutableMessage = dynamicMessageFactory.GetPrototype(fileDescriptor->FindMessageTypeByName(targets.protoType));
-
-  google::protobuf::Message * output = immutableMessage->New();
-  google::protobuf::Message * input = immutableMessage->New();
+  google::protobuf::Message* output = immutableMessage->New();
+  google::protobuf::Message* input = immutableMessage->New();
 
   // CompiledNode output;
   // absl::Status outputStatus = ReadTextProtoFile(targets.output, output);
@@ -129,7 +137,7 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
   // CompiledNode golden;
   // absl::Status goldenStatus = ReadTextProtoFile(targets.golden, golden);
 
-  // ASSERT_TRUE(diff.Equals(output, golden));
+  // ASSERT_TRUE(messageDifferencer.Equals(output, golden));
 }
 
 INSTANTIATE_TEST_SUITE_P(
