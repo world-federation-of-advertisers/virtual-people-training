@@ -25,7 +25,9 @@ message BinaryParameter {
 
   optional string proto = 4;
 
-  optional string proto_type = 5;
+  repeated string proto_dependencies = 5;
+
+  optional string proto_type = 6;
 }
 
 message TestCase {

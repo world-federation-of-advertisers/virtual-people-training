@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <errno.h>
 #include <fcntl.h>
 
 #include <string>
@@ -25,12 +24,10 @@
 #include "google/protobuf/dynamic_message.h"
 #include "google/protobuf/io/tokenizer.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
-#include "google/protobuf/text_format.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 #include "tools/cpp/runfiles/runfiles.h"
 #include "wfa/virtual_people/training/config.pb.h"
-// #include "wfa/virtual_people/training/model_config.pb.h"
 
 using bazel::tools::cpp::runfiles::Runfiles;
 using ::wfa::ReadTextProtoFile;
@@ -39,6 +36,7 @@ namespace wfa_virtual_people {
 namespace {
 
 struct Targets {
+  std::vector<std::string> protoDependecies;
   std::string name;
   std::string output;
   std::string golden;
@@ -53,14 +51,14 @@ struct Targets {
 // to targets.
 std::vector<Targets> ParseConfig(std::string path) {
   IntegrationTestList config;
-
-  absl::Status readConfigStatus = ReadTextProtoFile(path, config);
-
-  CHECK(readConfigStatus == absl::OkStatus()) << "Read Config Status: " << readConfigStatus;
-
   std::vector<Targets> targets;
+  std::vector<std::string> protoDependencies;
   std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest());
   std::string name, output, golden, proto, protoType, rPath, execute;
+
+  absl::Status readConfigStatus = ReadTextProtoFile(path, config);
+  CHECK(readConfigStatus == absl::OkStatus())
+      << "Read Config Status: " << readConfigStatus;
 
   for (int testIndex = 0; testIndex < config.tests_size(); testIndex++) {
     IntegrationTest it = config.tests().at(testIndex);
@@ -76,11 +74,15 @@ std::vector<Targets> ParseConfig(std::string path) {
         BinaryParameter bp = tc.binary_parameters().at(binaryParameterIndex);
         execute += " --" + bp.name() + "=" + bp.value();
         if (!bp.golden().empty() && open(bp.golden().data(), O_RDONLY) != -1) {
+          protoDependencies = std::vector<std::string>(
+              bp.proto_dependencies().begin(), bp.proto_dependencies().end());
           output = bp.value();
           golden = bp.golden();
           proto = bp.proto();
+          protoDependencies.push_back(proto);
           protoType = bp.proto_type();
-          targets.push_back({name, output, golden, proto, protoType});
+          targets.push_back(
+              {protoDependencies, name, output, golden, proto, protoType});
         } else if (!bp.golden().empty()) {
           execute.erase(execute.find(bp.value()));
           execute += bp.golden();
@@ -103,13 +105,13 @@ std::vector<Targets> ParseConfig(std::string path) {
 class IntegrationTestParamaterizedFixture
     : public ::testing::TestWithParam<Targets> {
  protected:
-  google::protobuf::util::MessageDifferencer messageDifferencer;
+  int fd;
+  google::protobuf::DescriptorPool descriptorPoolUnderlay;
+  google::protobuf::DynamicMessageFactory dynamicMessageFactory;
   google::protobuf::FileDescriptorProto fileDescriptorProto;
   google::protobuf::compiler::Parser parser;
-  google::protobuf::DescriptorPool descriptorPool;
-  google::protobuf::DynamicMessageFactory dynamicMessageFactory;
-  const google::protobuf::Message* immutableMessage;
-  int fd;
+  google::protobuf::util::MessageDifferencer messageDifferencer;
+  std::string rPath;
 };
 
 // Parses proto type to compare from input config and compares output textproto
@@ -117,32 +119,48 @@ class IntegrationTestParamaterizedFixture
 TEST_P(IntegrationTestParamaterizedFixture, Test) {
   Targets targets(GetParam());
 
-  fd = open(targets.proto.data(), O_RDONLY);
+  google::protobuf::DescriptorPool descriptorPool(&descriptorPoolUnderlay);
 
-  CHECK(errno == 0) << "Errno: " << errno;
+  descriptorPool.AllowUnknownDependencies();
+  descriptorPoolUnderlay.AllowUnknownDependencies();
 
-  google::protobuf::io::FileInputStream fileInputStream(fd);
+  std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest());
 
-  CHECK(fileInputStream.GetErrno() == 0)
-      << "Errno: " << fileInputStream.GetErrno();
+  for (std::string protoDependency : targets.protoDependecies) {
+    rPath = runfiles->Rlocation(protoDependency);
 
-  google::protobuf::io::Tokenizer tokenizer(&fileInputStream, NULL);
-  parser.Parse(&tokenizer, &fileDescriptorProto);
-  const google::protobuf::FileDescriptor* fileDescriptor =
+    fd = open(rPath.data(), O_RDONLY);
+    google::protobuf::io::FileInputStream fileInputStream(fd);
+    CHECK(fileInputStream.GetErrno() == 0)
+        << "Errno: " << fileInputStream.GetErrno();
+
+    google::protobuf::io::Tokenizer tokenizer(&fileInputStream, NULL);
+    fileDescriptorProto.set_name(protoDependency);
+    parser.Parse(&tokenizer, &fileDescriptorProto);
+    if (protoDependency == targets.proto) {
       descriptorPool.BuildFile(fileDescriptorProto);
-  immutableMessage = dynamicMessageFactory.GetPrototype(
-      fileDescriptor->FindMessageTypeByName(targets.protoType));
+    } else {
+      descriptorPoolUnderlay.BuildFile(fileDescriptorProto);
+    }
+  }
+
+  const google::protobuf::FileDescriptor* fileDescriptor =
+      descriptorPool.FindFileByName(targets.proto);
+  const google::protobuf::Descriptor* descriptor =
+      fileDescriptor->FindMessageTypeByName(targets.protoType);
+  const google::protobuf::Message* immutableMessage =
+      dynamicMessageFactory.GetPrototype(descriptor);
 
   google::protobuf::Message* output = immutableMessage->New();
-  google::protobuf::Message* golden = immutableMessage->New();
-
   absl::Status outputStatus = ReadTextProtoFile(targets.output, *output);
-
   CHECK(outputStatus == absl::OkStatus()) << "Output Status: " << outputStatus;
 
+  google::protobuf::Message* golden = immutableMessage->New();
   absl::Status goldenStatus = ReadTextProtoFile(targets.golden, *golden);
-
   CHECK(goldenStatus == absl::OkStatus()) << "Golden Status: " << goldenStatus;
+
+  // CHECK(false) << output->ShortDebugString() << "\n" <<
+  // golden->ShortDebugString();
 
   ASSERT_TRUE(messageDifferencer.Equals(*output, *golden));
 }
