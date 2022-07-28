@@ -105,13 +105,10 @@ std::vector<Targets> ParseConfig(std::string path) {
 class IntegrationTestParamaterizedFixture
     : public ::testing::TestWithParam<Targets> {
  protected:
-  int fd;
   google::protobuf::DescriptorPool descriptorPoolUnderlay;
-  google::protobuf::DynamicMessageFactory dynamicMessageFactory;
   google::protobuf::FileDescriptorProto fileDescriptorProto;
   google::protobuf::compiler::Parser parser;
   google::protobuf::util::MessageDifferencer messageDifferencer;
-  std::string rPath;
 };
 
 // Parses proto type to compare from input config and compares output textproto
@@ -127,14 +124,15 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
   std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest());
 
   for (std::string protoDependency : targets.protoDependecies) {
-    rPath = runfiles->Rlocation(protoDependency);
+    std::string rPath = runfiles->Rlocation(protoDependency);
 
-    fd = open(rPath.data(), O_RDONLY);
+    int fd = open(rPath.data(), O_RDONLY);
     google::protobuf::io::FileInputStream fileInputStream(fd);
     CHECK(fileInputStream.GetErrno() == 0)
         << "Errno: " << fileInputStream.GetErrno();
 
     google::protobuf::io::Tokenizer tokenizer(&fileInputStream, NULL);
+    fileInputStream.SetCloseOnDelete(true);
     fileDescriptorProto.set_name(protoDependency);
     parser.Parse(&tokenizer, &fileDescriptorProto);
     if (protoDependency == targets.proto) {
@@ -144,6 +142,8 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
     }
   }
 
+  google::protobuf::DynamicMessageFactory dynamicMessageFactory;
+
   const google::protobuf::FileDescriptor* fileDescriptor =
       descriptorPool.FindFileByName(targets.proto);
   const google::protobuf::Descriptor* descriptor =
@@ -151,16 +151,15 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
   const google::protobuf::Message* immutableMessage =
       dynamicMessageFactory.GetPrototype(descriptor);
 
-  google::protobuf::Message* output = immutableMessage->New();
+  std::unique_ptr<google::protobuf::Message> output =
+      std::unique_ptr<google::protobuf::Message>(immutableMessage->New());
   absl::Status outputStatus = ReadTextProtoFile(targets.output, *output);
   CHECK(outputStatus == absl::OkStatus()) << "Output Status: " << outputStatus;
 
-  google::protobuf::Message* golden = immutableMessage->New();
+  std::unique_ptr<google::protobuf::Message> golden =
+      std::unique_ptr<google::protobuf::Message>(immutableMessage->New());
   absl::Status goldenStatus = ReadTextProtoFile(targets.golden, *golden);
   CHECK(goldenStatus == absl::OkStatus()) << "Golden Status: " << goldenStatus;
-
-  // CHECK(false) << output->ShortDebugString() << "\n" <<
-  // golden->ShortDebugString();
 
   ASSERT_TRUE(messageDifferencer.Equals(*output, *golden));
 }
