@@ -1,3 +1,4 @@
+workspace_name: "virtual_people_training"
 tests {
     name: "model_compiler"
     binary: "virtual_people_training/src/main/cc/wfa/virtual_people/training/model_compiler/compiler_main"

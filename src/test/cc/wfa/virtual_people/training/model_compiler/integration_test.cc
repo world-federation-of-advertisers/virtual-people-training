@@ -47,8 +47,7 @@ struct Targets {
 // Returns a list of Targets parsed from the input config.
 // Additionally, locates the runfiles path for the given binary and executes the
 // binary with its given binary_parameters from the input config. Depending on
-// if the golden file exists or not, will generate a golden file or append
-// to targets.
+// if the golden file exists or not, will generate a golden file for comparison.
 std::vector<Targets> ParseConfig(std::string path) {
   IntegrationTestList config;
   std::vector<Targets> targets;
@@ -76,23 +75,22 @@ std::vector<Targets> ParseConfig(std::string path) {
         if (!bp.golden().empty() && open(bp.golden().data(), O_RDONLY) != -1) {
           protoDependencies = std::vector<std::string>(
               bp.proto_dependencies().begin(), bp.proto_dependencies().end());
+          protoDependencies.push_back(bp.proto());
           output = bp.value();
           golden = bp.golden();
           proto = bp.proto();
-          protoDependencies.push_back(proto);
           protoType = bp.proto_type();
           targets.push_back(
               {protoDependencies, name, output, golden, proto, protoType});
         } else if (!bp.golden().empty()) {
           execute.erase(execute.find(bp.value()));
           execute += bp.golden();
+          LOG(INFO) << "Generated golden file for: " << name
+                    << " To move to local directory run\ncp -i "
+                    << runfiles->Rlocation(config.workspace_name() + "/" +
+                                           bp.golden())
+                    << " " << bp.golden();
         }
-        /*
-         * TODO(wastadtlander): For this section ^^^ need to make it so when
-         * executed via system it actually generates the file. The issue is that
-         * because the test is running via Bazel, Bazel doesn't let you write to
-         * your workspace.
-         */
       }
       std::system(execute.c_str());
     }
