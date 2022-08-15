@@ -1,0 +1,190 @@
+name: "root"
+branch_node {
+  branches {
+    node {
+      name: "with_id_node"
+      branch_node {
+        branches {
+          node {
+            name: "with_id_node_country_1"
+            branch_node {
+              branches {
+                node {
+                  name: "with_id_node_country_1_region_1"
+                  branch_node {
+                    branches {
+                      node {
+                        name: "with_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1"
+                        branch_node {
+                          branches {
+                            node {
+                              name: "with_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1"
+                              branch_node {
+                                branches {
+                                  node {
+                                    name: "with_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_0"
+                                    population_node {
+                                      pools {
+                                        population_offset: 100000000
+                                        total_population: 12000000
+                                      }
+                                    }
+                                  }
+                                  chance: 0.10000000000000002
+                                }
+                                branches {
+                                  node {
+                                    name: "with_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_1"
+                                    population_node {
+                                      pools {
+                                        population_offset: 112000000
+                                        total_population: 12000000
+                                      }
+                                    }
+                                  }
+                                  chance: 0.10000000000000002
+                                }
+                                branches {
+                                  node {
+                                    name: "with_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_2"
+                                    population_node {
+                                      pools {
+                                        population_offset: 124000000
+                                        total_population: 96000000
+                                      }
+                                    }
+                                  }
+                                  chance: 0.8
+                                }
+                                random_seed: "with_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1"
+                              }
+                            }
+                            condition {
+                              op: TRUE
+                            }
+                          }
+                        }
+                      }
+                      condition {
+                        op: TRUE
+                      }
+                    }
+                  }
+                }
+                condition {
+                  name: "person_region_code"
+                  op: EQUAL
+                  value: "1"
+                }
+              }
+            }
+          }
+          condition {
+            name: "person_country_code"
+            op: EQUAL
+            value: "1"
+          }
+        }
+      }
+    }
+    condition {
+      name: "labeler_input.profile_info.logged_in_id_user_info.user_id"
+      op: HAS
+    }
+  }
+  branches {
+    node {
+      name: "without_id_node"
+      branch_node {
+        branches {
+          node {
+            name: "without_id_node_country_1"
+            branch_node {
+              branches {
+                node {
+                  name: "without_id_node_country_1_region_1"
+                  branch_node {
+                    branches {
+                      node {
+                        name: "without_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1"
+                        branch_node {
+                          branches {
+                            node {
+                              name: "without_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1"
+                              branch_node {
+                                branches {
+                                  node {
+                                    name: "without_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_0"
+                                    population_node {
+                                      pools {
+                                        population_offset: 100000000
+                                        total_population: 12000000
+                                      }
+                                    }
+                                  }
+                                  chance: 0.10000000000000002
+                                }
+                                branches {
+                                  node {
+                                    name: "without_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_1"
+                                    population_node {
+                                      pools {
+                                        population_offset: 112000000
+                                        total_population: 36000000
+                                      }
+                                    }
+                                  }
+                                  chance: 0.3
+                                }
+                                branches {
+                                  node {
+                                    name: "without_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_2"
+                                    population_node {
+                                      pools {
+                                        population_offset: 148000000
+                                        total_population: 72000000
+                                      }
+                                    }
+                                  }
+                                  chance: 0.6
+                                }
+                                random_seed: "without_id_node_country_1_region_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1"
+                              }
+                            }
+                            condition {
+                              op: TRUE
+                            }
+                          }
+                        }
+                      }
+                      condition {
+                        op: TRUE
+                      }
+                    }
+                  }
+                }
+                condition {
+                  name: "person_region_code"
+                  op: EQUAL
+                  value: "1"
+                }
+              }
+            }
+          }
+          condition {
+            name: "person_country_code"
+            op: EQUAL
+            value: "1"
+          }
+        }
+      }
+    }
+    condition {
+      op: NOT
+      sub_filters {
+        name: "labeler_input.profile_info.logged_in_id_user_info.user_id"
+        op: HAS
+      }
+    }
+  }
+}

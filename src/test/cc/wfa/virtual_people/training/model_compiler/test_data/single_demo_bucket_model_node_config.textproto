@@ -1,0 +1,112 @@
+name: "root"
+census {
+  # census use person_region_code
+  verbatim {
+    records {
+      attributes {
+        person_country_code: "1"
+        person_region_code: "1"
+      }
+      population_offset: 100000000
+      total_population: 120000000
+    }
+  }
+}
+branches {
+  nodes {
+    name: "with_id_node"
+    condition {
+      verbatim {
+        op: HAS name: "labeler_input.profile_info.logged_in_id_user_info.user_id"
+      }
+    }
+    # Population pool.
+    population_pool_config {
+      adf {
+        verbatim {
+          name: "ADF_with_id"
+          identifier_type_filters { op: TRUE }
+          identifier_type_names: "IDENTIFIER_TYPE_1"
+          dirac_mixture {
+            alphas: 0.1
+            alphas: 0.1
+            alphas: 0.8
+            deltas { activities: 1 }
+            deltas { activities: 1 }
+            deltas { activities: 1 }
+          }
+        }
+      }
+      multipool {
+        verbatim {
+          records {
+            name: "MULTIPOOL_RECORD_1"
+            condition {
+              op: AND
+              sub_filters {
+                op: EQUAL
+                name: "person_country_code"
+                value: "1"
+              }
+              sub_filters {
+                op: EQUAL
+                name: "person_region_code"
+                value: "1"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  nodes {
+    name: "without_id_node"
+    condition {
+      verbatim {
+        op: NOT
+        sub_filters {
+          name: "labeler_input.profile_info.logged_in_id_user_info.user_id"
+          op: HAS
+        }
+      }
+    }
+    # Population pool.
+    population_pool_config {
+      adf {
+        verbatim {
+          name: "ADF_without_id"
+          identifier_type_filters { op: TRUE }
+          identifier_type_names: "IDENTIFIER_TYPE_1"
+          dirac_mixture {
+            alphas: 0.1
+            alphas: 0.3
+            alphas: 0.6
+            deltas { activities: 1 }
+            deltas { activities: 1 }
+            deltas { activities: 1 }
+          }
+        }
+      }
+      multipool {
+        verbatim {
+          records {
+            name: "MULTIPOOL_RECORD_1"
+            condition {
+              op: AND
+              sub_filters {
+                op: EQUAL
+                name: "person_country_code"
+                value: "1"
+              }
+              sub_filters {
+                op: EQUAL
+                name: "person_region_code"
+                value: "1"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
