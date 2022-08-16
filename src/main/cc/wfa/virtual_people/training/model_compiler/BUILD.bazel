@@ -3,6 +3,7 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 package(default_visibility = [
     "//src/main/cc/wfa/virtual_people/training/model_compiler:__subpackages__",
     "//src/test/cc/wfa/virtual_people/training/model_compiler:__subpackages__",
+    "//src/test/cc/wfa/virtual_people/training/util:__subpackages__",
 ])
 
 _INCLUDE_PREFIX = "/src/main/cc"

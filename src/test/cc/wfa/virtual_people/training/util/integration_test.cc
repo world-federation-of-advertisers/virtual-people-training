@@ -27,7 +27,7 @@
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 #include "tools/cpp/runfiles/runfiles.h"
-#include "wfa/virtual_people/training/config.pb.h"
+#include "wfa/virtual_people/common/config.pb.h"
 
 using bazel::tools::cpp::runfiles::Runfiles;
 using ::wfa::ReadTextProtoFile;
@@ -46,8 +46,7 @@ struct Targets {
 
 // Returns a list of Targets parsed from the input config.
 // Additionally, locates the runfiles path for the given binary and executes the
-// binary with its given binary_parameters from the input config. Depending on
-// if the golden file exists or not, will generate a golden file for comparison.
+// binary with its given binary_parameters from the input config.
 std::vector<Targets> ParseConfig(std::string path) {
   IntegrationTestList config;
   std::vector<Targets> targets;
@@ -72,24 +71,16 @@ std::vector<Targets> ParseConfig(std::string path) {
            binaryParameterIndex++) {
         BinaryParameter bp = tc.binary_parameters().at(binaryParameterIndex);
         execute += " --" + bp.name() + "=" + bp.value();
-        if (!bp.golden().empty() && open(bp.golden().data(), O_RDONLY) != -1) {
+        if (!bp.golden().golden_path().empty() && open(bp.golden().golden_path().data(), O_RDONLY) != -1) {
           protoDependencies = std::vector<std::string>(
-              bp.proto_dependencies().begin(), bp.proto_dependencies().end());
-          protoDependencies.push_back(bp.proto());
+              bp.golden().proto_dependencies().begin(), bp.golden().proto_dependencies().end());
+          protoDependencies.push_back(bp.golden().proto_path());
           output = bp.value();
-          golden = bp.golden();
-          proto = bp.proto();
-          protoType = bp.proto_type();
+          golden = bp.golden().golden_path();
+          proto = bp.golden().proto_path();
+          protoType = bp.golden().proto_type();
           targets.push_back(
               {protoDependencies, name, output, golden, proto, protoType});
-        } else if (!bp.golden().empty()) {
-          execute.erase(execute.find(bp.value()));
-          execute += bp.golden();
-          LOG(INFO) << "Generated golden file for: " << name
-                    << " To move to local directory run\ncp -i "
-                    << runfiles->Rlocation(config.workspace_name() + "/" +
-                                           bp.golden())
-                    << " " << bp.golden();
         }
       }
       std::system(execute.c_str());
@@ -133,6 +124,7 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
     fileInputStream.SetCloseOnDelete(true);
     fileDescriptorProto.set_name(protoDependency);
     parser.Parse(&tokenizer, &fileDescriptorProto);
+    fileDescriptorProto.clear_options();
     if (protoDependency == targets.proto) {
       descriptorPool.BuildFile(fileDescriptorProto);
     } else {
@@ -159,7 +151,11 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
   absl::Status goldenStatus = ReadTextProtoFile(targets.golden, *golden);
   CHECK(goldenStatus == absl::OkStatus()) << "Golden Status: " << goldenStatus;
 
-  ASSERT_TRUE(messageDifferencer.Equals(*output, *golden));
+  if (messageDifferencer.Equals(*output, *golden)) {
+    SUCCEED();
+  } else {
+    FAIL() << std::system(("diff " + targets.output + " " + targets.golden).c_str());
+  }
 }
 
 // Instantiates all test cases from the input config and assigns each one a
@@ -167,7 +163,7 @@ TEST_P(IntegrationTestParamaterizedFixture, Test) {
 INSTANTIATE_TEST_SUITE_P(
     IntegrationTest, IntegrationTestParamaterizedFixture,
     ::testing::ValuesIn(
-        ParseConfig("src/test/cc/wfa/virtual_people/training/model_compiler/"
+        ParseConfig("src/test/cc/wfa/virtual_people/training/util/"
                     "test_data/config.textproto")),
     [](const ::testing::TestParamInfo<
         IntegrationTestParamaterizedFixture::ParamType>& info) {
