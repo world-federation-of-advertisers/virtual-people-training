@@ -5,12 +5,16 @@ package(default_visibility = ["//visibility:private"])
 cc_binary(
     name = "golden_generator",
     srcs = ["golden_generator.cc"],
+    data = [
+        "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data",
+        "//src/test/cc/wfa/virtual_people/training/util/test_data",
+    ],
     deps = [
         "@com_github_google_glog//:glog",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
-        # "@virtual_people_common//src/main/cc/wfa/virtual_people/common/integration_testing_framework:golden_generator",
+        "@virtual_people_common//src/main/cc/wfa/virtual_people/common/integration_testing_framework:golden_generator",
         "@virtual_people_common//src/main/proto/wfa/virtual_people/common:config_cc_proto",
         "@wfa_common_cpp//src/main/cc/common_cpp/protobuf_util:textproto_io",
     ],
