@@ -18,6 +18,18 @@ branch_node {
                         branch_node {
                           branches {
                             node {
+                              name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_empty_pool"
+                              population_node {
+                                pools {
+                                  population_offset: 0
+                                  total_population: 0
+                                }
+                              }
+                            }
+                            chance: 0.5
+                          }
+                          branches {
+                            node {
                               name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_0"
                               population_node {
                                 pools {
@@ -26,7 +38,7 @@ branch_node {
                                 }
                               }
                             }
-                            chance: 0.76
+                            chance: 0.2
                           }
                           branches {
                             node {
@@ -38,19 +50,7 @@ branch_node {
                                 }
                               }
                             }
-                            chance: 0.24
-                          }
-                          branches {
-                            node {
-                              name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_delta_2"
-                              population_node {
-                                pools {
-                                  population_offset: 0
-                                  total_population: 0
-                                }
-                              }
-                            }
-                            chance: 0
+                            chance: 0.3
                           }
                           random_seed: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1"
                         }

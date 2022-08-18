@@ -38,6 +38,8 @@ namespace wfa_virtual_people {
 
 namespace {
 
+inline constexpr double kKappaAllowedError = 0.0001;
+
 // This stores some information that will be used when building child nodes.
 struct CompilerContext {
   const CensusRecordsSpecification* census = nullptr;
@@ -233,6 +235,12 @@ uint64_t GetPopulationSum(const std::vector<CensusRecord*>& records) {
   return sum;
 }
 
+void NormalizeInput(std::vector<double>& input, const double total) {
+  for (double& num : input) {
+    num /= total;
+  }
+}
+
 // Return error status if the @input is not normalized in the @allowed_error.
 // Otherwise, normalize the @input.
 absl::Status NormalizeIfSumCloseToOne(const double allowed_error,
@@ -241,9 +249,7 @@ absl::Status NormalizeIfSumCloseToOne(const double allowed_error,
   if (total < 1.0 - allowed_error || total > 1.0 + allowed_error) {
     return absl::InvalidArgumentError("Input do not sum up to 1.");
   }
-  for (double& num : input) {
-    num /= total;
-  }
+  NormalizeInput(input, total);
   return absl::OkStatus();
 }
 
@@ -330,9 +336,9 @@ std::vector<double> RedistributeProbabilitiesByDeltaPoolSizes(
     const std::vector<uint64_t>& delta_pool_sizes,
     const std::vector<double>& original_probabilities) {
   double kappa = std::accumulate(original_probabilities.begin(),
-                                 original_probabilities.end() - 1, 0.0);
+                                 original_probabilities.end(), 0.0);
   std::vector<int> non_empty_indexes;
-  for (int i = 0; i < delta_pool_sizes.size() - 1; ++i) {
+  for (int i = 0; i < delta_pool_sizes.size(); ++i) {
     if (delta_pool_sizes[i] > 0) {
       non_empty_indexes.push_back(i);
     }
@@ -344,12 +350,18 @@ std::vector<double> RedistributeProbabilitiesByDeltaPoolSizes(
   }
 
   std::vector<double> output(original_probabilities.size(), 0.0);
-  output[original_probabilities.size() - 1] =
-      original_probabilities[original_probabilities.size() - 1];
   for (int i : non_empty_indexes) {
     output[i] = original_probabilities[i] * kappa / non_empty_sum;
   }
   return output;
+}
+
+// Add empty population pool for @node.
+void AddEmptyPoolForNode(CompiledNode& node) {
+  PopulationNode::VirtualPersonPool* empty_pool =
+      node.mutable_population_node()->add_pools();
+  empty_pool->set_population_offset(0);
+  empty_pool->set_total_population(0);
 }
 
 absl::Status CompileAdf(const ActivityDensityFunction& adf,
@@ -386,7 +398,17 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
       original_probabilities[j] = adf.dirac_mixture().alphas(j) *
                                   adf.dirac_mixture().deltas(j).activities(i);
     }
-    RETURN_IF_ERROR(NormalizeIfSumCloseToOne(0.0001, original_probabilities));
+    double kappa = std::accumulate(original_probabilities.begin(),
+                                   original_probabilities.end(), 0.0);
+    bool need_empty_pool = false;
+    if (kappa > 1.0 + kKappaAllowedError) {
+      return absl::InvalidArgumentError("Kappa is larger than 1.");
+    } else if (kappa < 1.0 - kKappaAllowedError) {
+      need_empty_pool = true;
+    } else {
+      NormalizeInput(original_probabilities, kappa);
+    }
+    
     std::vector<double> probabilities_by_delta =
         RedistributeProbabilitiesByDeltaPoolSizes(delta_pool_sizes,
                                                   original_probabilities);
@@ -400,6 +422,17 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
 
     identifier_node->mutable_branch_node()->set_random_seed(
         identifier_node->name());
+
+    if (need_empty_pool) {
+      BranchNode::Branch* empty_pool_branch =
+          identifier_node->mutable_branch_node()->add_branches();
+      empty_pool_branch->set_chance(1.0 - kappa);
+      CompiledNode* empty_pool_node = empty_pool_branch->mutable_node();
+      empty_pool_node->set_name(
+          absl::StrCat(identifier_node->name(), "_empty_pool"));
+      AddEmptyPoolForNode(*empty_pool_node);
+    }
+
     for (int j = 0; j < delta_pools.size(); ++j) {
       BranchNode::Branch* delta_branch =
           identifier_node->mutable_branch_node()->add_branches();
@@ -407,11 +440,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
       CompiledNode* delta_node = delta_branch->mutable_node();
       delta_node->set_name(absl::StrCat(identifier_node->name(), "_delta_", j));
       if (delta_pools[j].empty()) {
-        // Build empty population pool.
-        PopulationNode::VirtualPersonPool* empty_pool =
-            delta_node->mutable_population_node()->add_pools();
-        empty_pool->set_population_offset(0);
-        empty_pool->set_total_population(0);
+        AddEmptyPoolForNode(*delta_node);
       } else {
         delta_node->mutable_population_node()->mutable_pools()->Assign(
             delta_pools[j].begin(), delta_pools[j].end());
