@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
   CHECK(readConfigStatus == absl::OkStatus())
       << "Read Config Status: " << readConfigStatus;
 
+  // TODO: Runs into segmentation fault after calling GoldenGenerator
   std::vector<std::string> executeVector(GoldenGenerator(config));
 
   for (std::string execute : executeVector) {
