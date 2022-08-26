@@ -402,7 +402,8 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
                                    original_probabilities.end(), 0.0);
     bool need_empty_pool = false;
     if (kappa > 1.0 + kKappaAllowedError) {
-      return absl::InvalidArgumentError("Kappa is larger than 1.");
+      return absl::InvalidArgumentError(
+          absl::StrCat("Kappa is larger than 1. kappa: ", kappa));
     } else if (kappa < 1.0 - kKappaAllowedError) {
       need_empty_pool = true;
     } else {
