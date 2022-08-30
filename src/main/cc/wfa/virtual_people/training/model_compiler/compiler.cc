@@ -409,7 +409,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
     } else {
       NormalizeInput(original_probabilities, kappa);
     }
-    
+
     std::vector<double> probabilities_by_delta =
         RedistributeProbabilitiesByDeltaPoolSizes(delta_pool_sizes,
                                                   original_probabilities);
