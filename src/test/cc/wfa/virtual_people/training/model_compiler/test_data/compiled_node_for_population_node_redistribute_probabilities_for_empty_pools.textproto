@@ -26,7 +26,7 @@ branch_node {
                                 }
                               }
                             }
-                            chance: 0.51
+                            chance: 0.5
                           }
                           branches {
                             node {
@@ -50,7 +50,7 @@ branch_node {
                                 }
                               }
                             }
-                            chance: 0.49
+                            chance: 0.5
                           }
                           random_seed: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1"
                         }
