@@ -49,5 +49,7 @@ message ActivityDensityFunction {
   // the number of @identifier_type_filters.
   repeated string identifier_type_names = 3;
 
+  // The number of activities in each deltas inside @dirac_mixture
+  // should be equal to the number of @identifier_type_filters.
   optional DiracMixture dirac_mixture = 4;
 }
