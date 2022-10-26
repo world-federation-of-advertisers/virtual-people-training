@@ -21,8 +21,8 @@ branch_node {
                               name: "node1_country_COUNTRY_CODE_1_region_REGION_CODE_1_pool_MULTIPOOL_RECORD_1_identifier_type_IDENTIFIER_TYPE_1_empty_pool"
                               population_node {
                                 pools {
-                                  population_offset: 0
-                                  total_population: 0
+                                  population_offset: 1000000000000000000
+                                  total_population: 100000000000000
                                 }
                               }
                             }

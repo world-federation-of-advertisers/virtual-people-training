@@ -158,6 +158,20 @@ absl::StatusOr<BranchNode> CompileBranchNode(const ModelNodeConfigs branches,
   }
 }
 
+// Returns error if the pool of any record overlaps with reserved id range which
+// is >= kCookieMonsterOffset.
+absl::Status ValidateCensusRecords(const CensusRecords& records) {
+  for (const CensusRecord& record : records.records()) {
+    if (record.population_offset() + record.total_population() >
+        kCookieMonsterOffset) {
+      return absl::InvalidArgumentError(absl::StrCat(
+          "The record overlaps with reserved id range: ",
+          record.DebugString()));
+    }
+  }
+  return absl::OkStatus();
+}
+
 absl::Status ValidateAdf(const ActivityDensityFunction& adf) {
   if (adf.identifier_type_filters_size() != adf.identifier_type_names_size()) {
     return absl::InvalidArgumentError(
@@ -356,12 +370,12 @@ std::vector<double> RedistributeProbabilitiesByDeltaPoolSizes(
   return output;
 }
 
-// Add empty population pool for @node.
-void AddEmptyPoolForNode(CompiledNode& node) {
+// Add cookie monster pool for @node.
+void AddCookieMonsterPoolForNode(CompiledNode& node) {
   PopulationNode::VirtualPersonPool* empty_pool =
       node.mutable_population_node()->add_pools();
-  empty_pool->set_population_offset(0);
-  empty_pool->set_total_population(0);
+  empty_pool->set_population_offset(kCookieMonsterOffset);
+  empty_pool->set_total_population(kCookieMonsterSize);
 }
 
 absl::Status CompileAdf(const ActivityDensityFunction& adf,
@@ -400,12 +414,12 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
     }
     double kappa = std::accumulate(original_probabilities.begin(),
                                    original_probabilities.end(), 0.0);
-    bool need_empty_pool = false;
+    bool kappa_less_than_one = false;
     if (kappa > 1.0 + kKappaAllowedError) {
       return absl::InvalidArgumentError(
           absl::StrCat("Kappa is larger than 1. kappa: ", kappa));
     } else if (kappa < 1.0 - kKappaAllowedError) {
-      need_empty_pool = true;
+      kappa_less_than_one = true;
     } else {
       NormalizeInput(original_probabilities, kappa);
     }
@@ -424,14 +438,14 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
     identifier_node->mutable_branch_node()->set_random_seed(
         identifier_node->name());
 
-    if (need_empty_pool) {
+    if (kappa_less_than_one) {
       BranchNode::Branch* empty_pool_branch =
           identifier_node->mutable_branch_node()->add_branches();
       empty_pool_branch->set_chance(1.0 - kappa);
       CompiledNode* empty_pool_node = empty_pool_branch->mutable_node();
       empty_pool_node->set_name(
           absl::StrCat(identifier_node->name(), "_empty_pool"));
-      AddEmptyPoolForNode(*empty_pool_node);
+      AddCookieMonsterPoolForNode(*empty_pool_node);
     }
 
     for (int j = 0; j < delta_pools.size(); ++j) {
@@ -441,7 +455,7 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
       CompiledNode* delta_node = delta_branch->mutable_node();
       delta_node->set_name(absl::StrCat(identifier_node->name(), "_delta_", j));
       if (delta_pools[j].empty()) {
-        AddEmptyPoolForNode(*delta_node);
+        AddCookieMonsterPoolForNode(*delta_node);
       } else {
         delta_node->mutable_population_node()->mutable_pools()->Assign(
             delta_pools[j].begin(), delta_pools[j].end());
@@ -466,6 +480,8 @@ absl::StatusOr<BranchNode> CompilePopulationPool(
         "Census records data is required to build population pool.");
   }
   ASSIGN_OR_RETURN(CensusRecords census, CompileCensusRecords(*context.census));
+
+  RETURN_IF_ERROR(ValidateCensusRecords(census));
 
   ASSIGN_OR_RETURN(auto geo_multipool_map,
                    GetCountryRegionMapFromMultipool(multipool));
