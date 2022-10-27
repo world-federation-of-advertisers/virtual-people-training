@@ -434,7 +434,7 @@ TEST(CompileTest, PopulationNodeRedistributeProbabilitiesForCookieMonsterPool) {
       ReadTextProtoFile(
           "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
           "model_node_config_population_node_redistribute_probabilities_for_"
-          "cookie_monster_pool.textproto",
+          "empty_delta_pool.textproto",
           config),
       IsOk());
   CompiledNode expected;
@@ -442,7 +442,7 @@ TEST(CompileTest, PopulationNodeRedistributeProbabilitiesForCookieMonsterPool) {
       ReadTextProtoFile(
           "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
           "compiled_node_for_population_node_redistribute_probabilities_for_"
-          "cookie_monster_pool.textproto",
+          "empty_delta_pool.textproto",
           expected),
       IsOk());
   EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
@@ -531,7 +531,7 @@ TEST(CompileTest, PopulationNodeRecordOverlapWithReservedIdRange) {
   EXPECT_THAT(
       CompileModel(config).status(),
       StatusIs(absl::StatusCode::kInvalidArgument,
-               "The record overlaps with reserved id range:"));
+               "The record contains ids >= kCookieMonsterOffset:"));
 }
 
 }  // namespace

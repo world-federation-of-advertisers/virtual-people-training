@@ -165,7 +165,7 @@ absl::Status ValidateCensusRecords(const CensusRecords& records) {
     if (record.population_offset() + record.total_population() >
         kCookieMonsterOffset) {
       return absl::InvalidArgumentError(absl::StrCat(
-          "The record overlaps with reserved id range: ",
+          "The record contains ids >= kCookieMonsterOffset: ",
           record.DebugString()));
     }
   }
@@ -439,27 +439,30 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
         identifier_node->name());
 
     if (kappa_less_than_one) {
-      BranchNode::Branch* empty_pool_branch =
+      BranchNode::Branch* cookie_monster_pool_branch =
           identifier_node->mutable_branch_node()->add_branches();
-      empty_pool_branch->set_chance(1.0 - kappa);
-      CompiledNode* empty_pool_node = empty_pool_branch->mutable_node();
-      empty_pool_node->set_name(
-          absl::StrCat(identifier_node->name(), "_empty_pool"));
-      AddCookieMonsterPoolForNode(*empty_pool_node);
+      cookie_monster_pool_branch->set_chance(1.0 - kappa);
+      CompiledNode* cookie_monster_pool_node =
+          cookie_monster_pool_branch->mutable_node();
+      cookie_monster_pool_node->set_name(
+          absl::StrCat(identifier_node->name(), "_cookie_monster_pool"));
+      AddCookieMonsterPoolForNode(*cookie_monster_pool_node);
     }
 
+    int delta_index = 0;
     for (int j = 0; j < delta_pools.size(); ++j) {
+      if (delta_pools[j].empty()) {
+        continue;
+      }
       BranchNode::Branch* delta_branch =
           identifier_node->mutable_branch_node()->add_branches();
       delta_branch->set_chance(probabilities_by_delta[j]);
       CompiledNode* delta_node = delta_branch->mutable_node();
-      delta_node->set_name(absl::StrCat(identifier_node->name(), "_delta_", j));
-      if (delta_pools[j].empty()) {
-        AddCookieMonsterPoolForNode(*delta_node);
-      } else {
-        delta_node->mutable_population_node()->mutable_pools()->Assign(
-            delta_pools[j].begin(), delta_pools[j].end());
-      }
+      delta_node->set_name(absl::StrCat(
+          identifier_node->name(), "_delta_", delta_index));
+      delta_node->mutable_population_node()->mutable_pools()->Assign(
+          delta_pools[j].begin(), delta_pools[j].end());
+      ++delta_index;
     }
   }
   return absl::OkStatus();
