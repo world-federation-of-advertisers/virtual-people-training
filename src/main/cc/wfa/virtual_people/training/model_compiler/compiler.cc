@@ -164,9 +164,9 @@ absl::Status ValidateCensusRecords(const CensusRecords& records) {
   for (const CensusRecord& record : records.records()) {
     if (record.population_offset() + record.total_population() >
         kCookieMonsterOffset) {
-      return absl::InvalidArgumentError(absl::StrCat(
-          "The record contains ids >= kCookieMonsterOffset: ",
-          record.DebugString()));
+      return absl::InvalidArgumentError(
+          absl::StrCat("The record contains ids >= kCookieMonsterOffset: ",
+                       record.DebugString()));
     }
   }
   return absl::OkStatus();
@@ -458,8 +458,8 @@ absl::Status CompileAdf(const ActivityDensityFunction& adf,
           identifier_node->mutable_branch_node()->add_branches();
       delta_branch->set_chance(probabilities_by_delta[j]);
       CompiledNode* delta_node = delta_branch->mutable_node();
-      delta_node->set_name(absl::StrCat(
-          identifier_node->name(), "_delta_", delta_index));
+      delta_node->set_name(
+          absl::StrCat(identifier_node->name(), "_delta_", delta_index));
       delta_node->mutable_population_node()->mutable_pools()->Assign(
           delta_pools[j].begin(), delta_pools[j].end());
       ++delta_index;
