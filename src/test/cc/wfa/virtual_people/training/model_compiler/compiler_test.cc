@@ -530,7 +530,8 @@ TEST(CompileTest, PopulationNodeRecordOverlapWithReservedIdRange) {
       IsOk());
   EXPECT_THAT(CompileModel(config).status(),
               StatusIs(absl::StatusCode::kInvalidArgument,
-                       "The record contains ids >= kCookieMonsterOffset:"));
+                       "The record contains ids >= kCookieMonsterOffset, which "
+                       "is 10^18:"));
 }
 
 }  // namespace
