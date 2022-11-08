@@ -21,6 +21,12 @@ namespace wfa_virtual_people {
 // in the population pools must be multiples of kDiscretization.
 constexpr uint64_t kDiscretization = 1000;
 
+// The offset and size of the cookie monster pools.
+// ID range starting from kCookieMonsterOffset, including those above cookie
+// monster range, is reserved.
+constexpr uint64_t kCookieMonsterOffset = 1000000000000000000;  // 10^18
+constexpr uint64_t kCookieMonsterSize = 100000000000000;        // 10^14
+
 }  // namespace wfa_virtual_people
 
 #endif  // SRC_MAIN_CC_WFA_VIRTUAL_PEOPLE_TRAINING_MODEL_COMPILER_CONSTANTS_H_

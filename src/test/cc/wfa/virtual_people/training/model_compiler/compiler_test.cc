@@ -428,13 +428,13 @@ TEST(CompileTest, PopulationNodeDiscretization) {
   EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
 }
 
-TEST(CompileTest, PopulationNodeRedistributeProbabilitiesForEmptyPools) {
+TEST(CompileTest, PopulationNodeRedistributeProbabilitiesForCookieMonsterPool) {
   ModelNodeConfig config;
   ASSERT_THAT(
       ReadTextProtoFile(
           "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
           "model_node_config_population_node_redistribute_probabilities_for_"
-          "empty_pools.textproto",
+          "empty_delta_pool.textproto",
           config),
       IsOk());
   CompiledNode expected;
@@ -442,7 +442,7 @@ TEST(CompileTest, PopulationNodeRedistributeProbabilitiesForEmptyPools) {
       ReadTextProtoFile(
           "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
           "compiled_node_for_population_node_redistribute_probabilities_for_"
-          "empty_pools.textproto",
+          "empty_delta_pool.textproto",
           expected),
       IsOk());
   EXPECT_THAT(CompileModel(config), IsOkAndHolds(EqualsProto(expected)));
@@ -517,6 +517,21 @@ TEST(CompileTest, PopulationNodeAlphaNotSumToOne) {
   EXPECT_THAT(
       CompileModel(config).status(),
       StatusIs(absl::StatusCode::kInvalidArgument, "Input do not sum up to 1"));
+}
+
+TEST(CompileTest, PopulationNodeRecordOverlapWithReservedIdRange) {
+  ModelNodeConfig config;
+  ASSERT_THAT(
+      ReadTextProtoFile(
+          "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+          "model_node_config_population_node_"
+          "record_overlap_with_reserved_id_range.textproto",
+          config),
+      IsOk());
+  EXPECT_THAT(CompileModel(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "The record contains ids >= kCookieMonsterOffset, which "
+                       "is 10^18:"));
 }
 
 }  // namespace
