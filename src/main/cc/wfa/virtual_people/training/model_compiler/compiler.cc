@@ -165,7 +165,8 @@ absl::Status ValidateCensusRecords(const CensusRecords& records) {
     if (record.population_offset() + record.total_population() >
         kCookieMonsterOffset) {
       return absl::InvalidArgumentError(
-          absl::StrCat("The record contains ids >= kCookieMonsterOffset: ",
+          absl::StrCat("The record contains ids >= kCookieMonsterOffset, ",
+                       "which is 10^18: ",
                        record.DebugString()));
     }
   }
