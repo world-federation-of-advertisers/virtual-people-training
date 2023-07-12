@@ -25,7 +25,7 @@ on:
 jobs:
   build-test:
     name: Build and test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Check out revision
         uses: actions/checkout@v2
@@ -35,4 +35,4 @@ jobs:
         with:
           workspace-path: .
           build-options: |
-            --host_platform=//build/platforms:ubuntu_18_04
+            --host_platform=//build/platforms:ubuntu_20_04
