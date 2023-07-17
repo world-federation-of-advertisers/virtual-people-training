@@ -19,7 +19,7 @@ proto_library(
     srcs = ["activity_density_function.proto"],
     strip_import_prefix = "/src/main/proto",
     deps = [
-        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:field_filter_proto",
+        "@wfa_virtual_people_common//src/main/proto/wfa/virtual_people/common:field_filter_proto",
     ],
 )
 
@@ -35,8 +35,8 @@ proto_library(
     deps = [
         ":activity_density_function_proto",
         ":comprehend_proto",
-        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:field_filter_proto",
-        "@virtual_people_common//src/main/proto/wfa/virtual_people/common:model_proto",
+        "@wfa_virtual_people_common//src/main/proto/wfa/virtual_people/common:field_filter_proto",
+        "@wfa_virtual_people_common//src/main/proto/wfa/virtual_people/common:model_proto",
     ],
 )
 
