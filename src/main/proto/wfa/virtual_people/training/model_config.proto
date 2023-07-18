@@ -76,6 +76,7 @@ message ModelNodeConfig {
       ConditionalMergeSpecification conditional_merge = 3;
       UpdateTreeSpecification update_tree = 4;
       ConditionalAssignmentSpecification conditional_assignment = 5;
+      GeometricShredderSpecification geometric_shredder = 6;
     }
   }
 
@@ -135,6 +136,13 @@ message UpdateTreeSpecification {
 message ConditionalAssignmentSpecification {
   oneof source {
     ConditionalAssignment verbatim = 1;
+    string from_file = 2;
+  }
+}
+
+message GeometricShredderSpecification {
+  oneof source {
+    GeometricShredder verbatim = 1;
     string from_file = 2;
   }
 }

@@ -82,6 +82,12 @@ absl::StatusOr<ConditionalAssignment> CompileConditionalAssignment(
                                   ConditionalAssignmentSpecification>(config);
 }
 
+absl::StatusOr<GeometricShredder> CompileGeometricShredder(
+    const GeometricShredderSpecification& config) {
+  return CompileFromSpecification<GeometricShredder,
+                                  GeometricShredderSpecification>(config);
+}
+
 absl::StatusOr<CompiledNode> CompileCompiledNode(
     const CompiledNodeSpecification& config) {
   switch (config.source_case()) {
@@ -150,6 +156,12 @@ absl::StatusOr<AttributesUpdater> CompileAttributesUpdater(
       ASSIGN_OR_RETURN(
           *updater.mutable_conditional_assignment(),
           CompileConditionalAssignment(config.conditional_assignment()));
+      break;
+    }
+    case AttributesUpdaterSpecification::kGeometricShredder: {
+      ASSIGN_OR_RETURN(
+          *updater.mutable_geometric_shredder(),
+          CompileGeometricShredder(config.geometric_shredder()));
       break;
     }
     default:
