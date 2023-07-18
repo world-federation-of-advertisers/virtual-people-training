@@ -159,9 +159,8 @@ absl::StatusOr<AttributesUpdater> CompileAttributesUpdater(
       break;
     }
     case AttributesUpdaterSpecification::kGeometricShredder: {
-      ASSIGN_OR_RETURN(
-          *updater.mutable_geometric_shredder(),
-          CompileGeometricShredder(config.geometric_shredder()));
+      ASSIGN_OR_RETURN(*updater.mutable_geometric_shredder(),
+                       CompileGeometricShredder(config.geometric_shredder()));
       break;
     }
     default:
