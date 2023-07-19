@@ -1,0 +1,249 @@
+random_seed: "updater_matrix_random_seed"
+columns {
+  person_country_code: "GB"
+  acting_demo {
+    gender: 2
+    age {
+      min_age: 18
+      max_age: 24
+    }
+  }
+}
+columns {
+  person_country_code: "GB"
+  acting_demo {
+    gender: 2
+    age {
+      min_age: 25
+      max_age: 34
+    }
+  }
+}
+columns {
+  person_country_code: "GB"
+  acting_demo {
+    gender: 2
+    age {
+      min_age: 35
+      max_age: 99
+    }
+  }
+}
+columns {
+  person_country_code: "GB"
+  acting_demo {
+    gender: 1
+    age {
+      min_age: 18
+      max_age: 24
+    }
+  }
+}
+columns {
+  person_country_code: "GB"
+  acting_demo {
+    gender: 1
+    age {
+      min_age: 25
+      max_age: 34
+    }
+  }
+}
+columns {
+  person_country_code: "GB"
+  acting_demo {
+    gender: 1
+    age {
+      min_age: 35
+      max_age: 99
+    }
+  }
+}
+columns {
+  person_country_code: "US"
+  acting_demo {
+    gender: 2
+    age {
+      min_age: 18
+      max_age: 24
+    }
+  }
+}
+columns {
+  person_country_code: "US"
+  acting_demo {
+    gender: 2
+    age {
+      min_age: 25
+      max_age: 34
+    }
+  }
+}
+columns {
+  person_country_code: "US"
+  acting_demo {
+    gender: 2
+    age {
+      min_age: 35
+      max_age: 99
+    }
+  }
+}
+columns {
+  person_country_code: "US"
+  acting_demo {
+    gender: 1
+    age {
+      min_age: 18
+      max_age: 24
+    }
+  }
+}
+columns {
+  person_country_code: "US"
+  acting_demo {
+    gender: 1
+    age {
+      min_age: 25
+      max_age: 34
+    }
+  }
+}
+columns {
+  person_country_code: "US"
+  acting_demo {
+    gender: 1
+    age {
+      min_age: 35
+      max_age: 99
+    }
+  }
+}
+rows {
+  corrected_demo {
+    gender: 2
+    age {
+      min_age: 18
+      max_age: 24
+    }
+  }
+}
+rows {
+  corrected_demo {
+    gender: 2
+    age {
+      min_age: 25
+      max_age: 34
+    }
+  }
+}
+rows {
+  corrected_demo {
+    gender: 2
+    age {
+      min_age: 35
+      max_age: 99
+    }
+  }
+}
+rows {
+  corrected_demo {
+    gender: 1
+    age {
+      min_age: 18
+      max_age: 24
+    }
+  }
+}
+rows {
+  corrected_demo {
+    gender: 1
+    age {
+      min_age: 25
+      max_age: 34
+    }
+  }
+}
+rows {
+  corrected_demo {
+    gender: 1
+    age {
+      min_age: 35
+      max_age: 99
+    }
+  }
+}
+probabilities: 0.5
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.0
+probabilities: 0.05
+probabilities: 0.0
+probabilities: 0.5
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.0
+probabilities: 0.05
+probabilities: 0.0
+probabilities: 0.1
+probabilities: 0.55
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.0
+probabilities: 0.1
+probabilities: 0.55
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.0
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.6
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.6
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.65
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.65
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.7
+probabilities: 0.05
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.1
+probabilities: 0.7
+probabilities: 0.05
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.05
+probabilities: 0.05
+probabilities: 0.05
+probabilities: 0.75
+probabilities: 0.1
+probabilities: 0.05
+probabilities: 0.05
+probabilities: 0.05
+probabilities: 0.05
+probabilities: 0.75
+pass_through_non_matches: True
+

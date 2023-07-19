@@ -1,0 +1,32 @@
+records {
+  name: "us_us_male_25_34_full_adf_record"
+  condition {
+    op: AND
+    sub_filters {
+      op: EQUAL
+      name: "person_country_code"
+      value: "US"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "person_region_code"
+      value: "US"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "label.demo.gender"
+      value: "GENDER_MALE"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "label.demo.age.min_age"
+      value: "25"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "label.demo.age.max_age"
+      value: "34"
+    }
+  }
+}
+

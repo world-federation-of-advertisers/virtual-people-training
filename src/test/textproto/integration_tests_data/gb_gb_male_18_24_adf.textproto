@@ -1,0 +1,10 @@
+name: "gb_gb_male_18_24_full_adf"
+identifier_type_filters { op: TRUE }
+identifier_type_names: "full_adf"
+dirac_mixture {
+  alphas: 0.4
+  alphas: 0.6
+  deltas { coordinates: 1.6 }
+  deltas { coordinates: 0.6 }
+}
+

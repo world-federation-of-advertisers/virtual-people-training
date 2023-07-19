@@ -1,0 +1,32 @@
+records {
+  name: "gb_gb_female_35_99_full_adf_record"
+  condition {
+    op: AND
+    sub_filters {
+      op: EQUAL
+      name: "person_country_code"
+      value: "GB"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "person_region_code"
+      value: "GB"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "label.demo.gender"
+      value: "GENDER_FEMALE"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "label.demo.age.min_age"
+      value: "35"
+    }
+    sub_filters {
+      op: EQUAL
+      name: "label.demo.age.max_age"
+      value: "99"
+    }
+  }
+}
+

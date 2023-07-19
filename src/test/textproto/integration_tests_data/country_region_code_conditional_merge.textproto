@@ -1,0 +1,24 @@
+pass_through_non_matches: True
+nodes {
+  condition {
+    op: EQUAL
+    name: "labeler_input.geo.country_id"
+    value: "1"
+  }
+  update {
+    person_country_code: "GB"
+    person_region_code: "GB"
+  }
+}
+nodes {
+  condition {
+    op: EQUAL
+    name: "labeler_input.geo.country_id"
+    value: "2"
+  }
+  update {
+    person_country_code: "US"
+    person_region_code: "US"
+  }
+}
+
