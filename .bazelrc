@@ -3,3 +3,4 @@ build --repo_env='CC=clang'
 
 # Use C++17 language features.
 build --cxxopt='-std=c++17'
+build --host_cxxopt='-std=c++17'
