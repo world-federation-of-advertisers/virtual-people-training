@@ -424,6 +424,69 @@ TEST(CompileFieldFilterProtoTest, ConditionalAssignmentNotSet) {
                        "Neither verbatim nor from_file is set"));
 }
 
+TEST(CompileAttributesUpdatersTest, GeometricShredderFromVerbatim) {
+  ModelNodeConfig::AttributesUpdatersSpecification config;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        updates {
+          geometric_shredder {
+            verbatim {
+              psi: 0.5
+              randomness_field: "labeler_input.event_id.id_fingerprint"
+              target_field: "acting_fingerprint"
+              random_seed: "TestSeed"
+            }
+          }
+        }
+      )pb",
+      &config));
+  BranchNode::AttributesUpdaters expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        updates {
+          geometric_shredder {
+            psi: 0.5
+            randomness_field: "labeler_input.event_id.id_fingerprint"
+            target_field: "acting_fingerprint"
+            random_seed: "TestSeed"
+          }
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileAttributesUpdaters(config),
+              IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileAttributesUpdatersTest, GeometricShredderFromFile) {
+  ModelNodeConfig::AttributesUpdatersSpecification config;
+  config.add_updates()->mutable_geometric_shredder()->set_from_file(
+      "src/test/cc/wfa/virtual_people/training/model_compiler/test_data/"
+      "geometric_shredder.textproto");
+  BranchNode::AttributesUpdaters expected;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(
+      R"pb(
+        updates {
+          geometric_shredder {
+            psi: 0.5
+            randomness_field: "labeler_input.event_id.id_fingerprint"
+            target_field: "acting_fingerprint"
+            random_seed: "TestSeed"
+          }
+        }
+      )pb",
+      &expected));
+  EXPECT_THAT(CompileAttributesUpdaters(config),
+              IsOkAndHolds(EqualsProto(expected)));
+}
+
+TEST(CompileFieldFilterProtoTest, GeometricShredderNotSet) {
+  ModelNodeConfig::AttributesUpdatersSpecification config;
+  config.add_updates()->mutable_geometric_shredder();
+  EXPECT_THAT(CompileAttributesUpdaters(config).status(),
+              StatusIs(absl::StatusCode::kInvalidArgument,
+                       "Neither verbatim nor from_file is set"));
+}
+
 TEST(CompileAttributesUpdatersTest, UpdateTreeFromVerbatim) {
   ModelNodeConfig::AttributesUpdatersSpecification config;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(

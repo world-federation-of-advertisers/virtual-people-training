@@ -1,0 +1,4 @@
+psi: 0.5
+randomness_field: "labeler_input.event_id.id_fingerprint"
+target_field: "acting_fingerprint"
+random_seed: "TestSeed"

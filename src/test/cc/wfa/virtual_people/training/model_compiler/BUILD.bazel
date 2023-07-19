@@ -11,6 +11,7 @@ cc_test(
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:conditional_assignment.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:conditional_merge.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:country_code_1_filter.textproto",
+        "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:geometric_shredder.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:multiplicity.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:multipool.textproto",
         "//src/test/cc/wfa/virtual_people/training/model_compiler/test_data:sparse_update_matrix.textproto",
